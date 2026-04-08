@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profil - Battle Royale</title>
+    <link rel="stylesheet" href="stile.css">
+    <style>
+        .profil-header {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .profil-nom {
+            padding: 15px 25px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            color: #333;
+        }
+
+        .btn-trophee {
+            width: 60px;
+            height: 60px;
+            font-size: 32px;
+            border: none;
+            border-radius: 50%;
+            background: rgba(255, 215, 0, 0.9);
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-trophee:hover {
+            background: rgba(255, 215, 0, 1);
+            transform: scale(1.1) rotate(10deg);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        }
+
+        .cartes-container {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 25px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .carte {
+            width: 150px;
+            height: 220px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carte::before {
+            content: '';
+            position: absolute;
+            top: -100%;
+            left: -100%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, 
+                transparent 30%, 
+                rgba(255, 255, 255, 0.8) 50%, 
+                transparent 70%);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0%, 100% {
+                transform: translateX(-100%) translateY(-100%);
+            }
+            50% {
+                transform: translateX(100%) translateY(100%);
+            }
+        }
+
+        .carte::after {
+            content: '';
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px;
+            pointer-events: none;
+        }
+
+        .carte:hover {
+            transform: translateY(-10px) scale(1.05);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        .carte:active {
+            transform: translateY(-5px) scale(1.02);
+        }
+
+        .carte-rouge {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+        }
+
+        .carte-orange {
+            background: linear-gradient(135deg, #ff8800, #cc6600);
+        }
+
+        .carte-bleu {
+            background: linear-gradient(135deg, #0088ff, #0066cc);
+        }
+
+        .carte-vert {
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+        }
+
+        .carte-jaune {
+            background: linear-gradient(135deg, #ffff00, #cccc00);
+        }
+
+        .btn-retour {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+        }
+
+        .btn-retour:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <button class="btn-retour" onclick="window.location.href='index.html'">← Retour</button>
+
+    <div class="profil-header">
+        <div class="profil-nom" id="profil-nom">Joueur</div>
+        <button class="btn-trophee">🏆</button>
+    </div>
+
+    <div class="cartes-container">
+        <div class="carte carte-rouge"></div>
+        <div class="carte carte-orange"></div>
+        <div class="carte carte-bleu"></div>
+        <div class="carte carte-vert"></div>
+        <div class="carte carte-jaune"></div>
+    </div>
+
+    <script>
+        // Récupérer le nom depuis localStorage
+        const nomStocke = localStorage.getItem('nomJoueur');
+        if (nomStocke) {
+            document.getElementById('profil-nom').textContent = nomStocke;
+        }
+
+        // Récupérer la couleur sauvegardée
+        const couleurSauvee = localStorage.getItem('couleurNom');
+        if (couleurSauvee) {
+            document.getElementById('profil-nom').style.background = couleurSauvee;
+        }
+
+        // Gestion des clics sur les cartes
+        const cartes = document.querySelectorAll('.carte');
+        cartes.forEach(carte => {
+            carte.addEventListener('click', function() {
+                let couleur = '';
+                
+                if (this.classList.contains('carte-rouge')) {
+                    couleur = 'linear-gradient(135deg, #ff0000, #cc0000)';
+                } else if (this.classList.contains('carte-orange')) {
+                    couleur = 'linear-gradient(135deg, #ff8800, #cc6600)';
+                } else if (this.classList.contains('carte-bleu')) {
+                    couleur = 'linear-gradient(135deg, #0088ff, #0066cc)';
+                } else if (this.classList.contains('carte-vert')) {
+                    couleur = 'linear-gradient(135deg, #00ff00, #00cc00)';
+                } else if (this.classList.contains('carte-jaune')) {
+                    couleur = 'linear-gradient(135deg, #ffff00, #cccc00)';
+                }
+                
+                // Appliquer la couleur
+                document.getElementById('profil-nom').style.background = couleur;
+                
+                // Sauvegarder dans localStorage
+                localStorage.setItem('couleurNom', couleur);
+                
+                // Animation de confirmation
+                this.style.transform = 'scale(1.15)';
+                setTimeout(() => {
+                    this.style.transform = '';
+                }, 200);
+            });
+        });
+    </script>
+</body>
+</html>
