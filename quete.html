@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quêtes - Battle Royale</title>
+    <link rel="stylesheet" href="stile.css">
+    <link rel="stylesheet" href="quete.css">
+</head>
+<body>
+    <button class="btn-retour" onclick="window.location.href='index.html'">← Retour</button>
+
+    <div class="quetes-header">
+        <h1>🎯 Quêtes</h1>
+        <div class="compteur-pieces-quete">
+            🪙 <span id="pieces-quete">0</span>
+        </div>
+    </div>
+
+    <div class="quetes-container">
+        <div class="quete-card" id="quete-1" data-complete="false">
+            <div class="quete-header">
+                <div class="quete-icone">🛡️</div>
+                <div class="quete-info">
+                    <h3>Améliorer ton bouclier</h3>
+                    <p>Atteins le niveau 2 de bouclier</p>
+                </div>
+            </div>
+            <div class="quete-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-quete-1"></div>
+                </div>
+                <div class="progress-text">
+                    Niveau actuel : <span id="niveau-actuel">1</span> / 2
+                </div>
+            </div>
+            <div class="quete-recompense">
+                <span class="recompense-label">Récompense :</span>
+                <span class="recompense-valeur">🪙 30 pièces</span>
+            </div>
+            <button class="btn-reclamer" id="btn-reclamer-1" style="display: none;">Réclamer</button>
+            <div class="quete-complete" style="display: none;">✅ Terminée</div>
+        </div>
+
+        <div class="quete-card" id="quete-2" data-complete="false">
+            <div class="quete-header">
+                <div class="quete-icone">🔫</div>
+                <div class="quete-info">
+                    <h3>Collectionne 2 armes</h3>
+                    <p>Obtiens 2 fusils prêts</p>
+                </div>
+            </div>
+            <div class="quete-progress">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-quete-2"></div>
+                </div>
+                <div class="progress-text">
+                    Fusils prêts : <span id="fusils-count">0</span> / 2
+                </div>
+            </div>
+            <div class="quete-recompense">
+                <span class="recompense-label">Récompense :</span>
+                <span class="recompense-valeur">🎁 1 Coffre Bronze</span>
+            </div>
+            <button class="btn-reclamer" id="btn-reclamer-2" style="display: none;">Réclamer</button>
+            <div class="quete-complete" id="complete-2" style="display: none;">✅ Terminée</div>
+        </div>
+
+        <div class="quete-card quete-locked">
+            <div class="quete-header">
+                <div class="quete-icone">🔒</div>
+                <div class="quete-info">
+                    <h3>Prochainement...</h3>
+                    <p>Plus de quêtes à venir !</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Récupérer les pièces
+        let pieces = parseInt(localStorage.getItem('pieces')) || 0;
+        document.getElementById('pieces-quete').textContent = pieces;
+
+        // Récupérer le niveau de bouclier
+        const niveauBouclier = parseInt(localStorage.getItem('niveauBouclier')) || 1;
+        document.getElementById('niveau-actuel').textContent = niveauBouclier;
+
+        // Vérifier si la quête est complétée
+        const quete1Complete = localStorage.getItem('quete1Complete') === 'true';
+        const quete1Reclamee = localStorage.getItem('quete1Reclamee') === 'true';
+
+        // Mettre à jour la barre de progression
+        const progressFill = document.getElementById('progress-quete-1');
+        const pourcentage = Math.min((niveauBouclier / 2) * 100, 100);
+        progressFill.style.width = pourcentage + '%';
+
+        // Gérer l'état de la quête
+        if (quete1Reclamee) {
+            // Quête déjà réclamée
+            document.querySelector('.quete-complete').style.display = 'block';
+            document.getElementById('quete-1').classList.add('complete');
+        } else if (niveauBouclier >= 2) {
+            // Quête terminée, récompense à réclamer
+            document.getElementById('btn-reclamer-1').style.display = 'block';
+        }
+
+        // Bouton réclamer
+        document.getElementById('btn-reclamer-1').addEventListener('click', function() {
+            // Ajouter 30 pièces
+            pieces += 30;
+            localStorage.setItem('pieces', pieces.toString());
+            document.getElementById('pieces-quete').textContent = pieces;
+
+            // Marquer comme réclamée
+            localStorage.setItem('quete1Reclamee', 'true');
+
+            // Masquer le bouton et afficher complété
+            this.style.display = 'none';
+            document.querySelector('.quete-complete').style.display = 'block';
+            document.getElementById('quete-1').classList.add('complete');
+
+            // Animation de récompense
+            this.textContent = '✅ Réclamé !';
+            
+            // Notification
+            alert('🎉 Félicitations !\n\nVous avez reçu 30 pièces ! 🪙');
+        });
+
+        // ==== QUÊTE 2 : Avoir 2 armes ====
+        const fusilsPrets = parseInt(localStorage.getItem('fusilsPrets')) || 0;
+        document.getElementById('fusils-count').textContent = fusilsPrets;
+
+        const quete2Reclamee = localStorage.getItem('quete2Reclamee') === 'true';
+
+        // Barre de progression quête 2
+        const progressFill2 = document.getElementById('progress-quete-2');
+        const pourcentage2 = Math.min((fusilsPrets / 2) * 100, 100);
+        progressFill2.style.width = pourcentage2 + '%';
+
+        // Gérer l'état de la quête 2
+        if (quete2Reclamee) {
+            document.getElementById('complete-2').style.display = 'block';
+            document.getElementById('quete-2').classList.add('complete');
+        } else if (fusilsPrets >= 2) {
+            document.getElementById('btn-reclamer-2').style.display = 'block';
+        }
+
+        // Bouton réclamer quête 2
+        document.getElementById('btn-reclamer-2').addEventListener('click', function() {
+            // Marquer comme réclamée
+            localStorage.setItem('quete2Reclamee', 'true');
+
+            // Masquer le bouton et afficher complété
+            this.style.display = 'none';
+            document.getElementById('complete-2').style.display = 'block';
+            document.getElementById('quete-2').classList.add('complete');
+
+            this.textContent = '✅ Réclamé !';
+            
+            // Redirection vers base pour ouvrir le coffre
+            alert('🎉 Félicitations !\n\nVous avez reçu 1 Coffre Bronze ! 🎁\n\nRetournez à votre base pour l\'ouvrir !');
+            window.location.href = 'base.html?coffreBonus=1';
+        });
+    </script>
+</body>
+</html>

@@ -14,30 +14,13 @@
     <div class="mon-qrcode">
         <div class="qrcode-titre">Mon QR Code</div>
         <div id="qrcode-container"></div>
-        <div class="mon-code">
-            Code : <span id="mon-code-chiffres">000</span>
-        </div>
     </div>
-
-    <!-- Bouton + en haut à droite -->
-    <button class="btn-ajouter" id="btn-ajouter">+</button>
 
     <!-- Liste des amis -->
     <div class="liste-amis" id="liste-amis">
         <h2>Mes Amis</h2>
         <div id="amis-container">
             <p class="aucun-ami">Aucun ami pour le moment. Ajoutez-en !</p>
-        </div>
-    </div>
-
-    <!-- Modal pour ajouter un ami -->
-    <div class="modal" id="modal-ajout" style="display: none;">
-        <div class="modal-content">
-            <span class="modal-close" id="modal-close">&times;</span>
-            <h2>Ajouter un ami</h2>
-            <p>Entrez le code de votre ami (3 chiffres)</p>
-            <input type="text" id="input-code" maxlength="3" pattern="[0-9]{3}" placeholder="000">
-            <button id="btn-valider-code">Envoyer la demande</button>
         </div>
     </div>
 
@@ -87,8 +70,7 @@
             localStorage.setItem('monCodeAmi', monCode);
         }
 
-        // Afficher le code
-        document.getElementById('mon-code-chiffres').textContent = monCode;
+
 
         // Récupérer le nom du joueur
         const nomJoueur = localStorage.getItem('nomJoueur') || 'Joueur';
@@ -212,51 +194,6 @@
             document.getElementById('modal-invitations').style.display = 'none';
         });
 
-        // Gestion du bouton +
-        document.getElementById('btn-ajouter').addEventListener('click', function() {
-            document.getElementById('modal-ajout').style.display = 'flex';
-            document.getElementById('input-code').focus();
-        });
-
-        // Fermer le modal
-        document.getElementById('modal-close').addEventListener('click', function() {
-            document.getElementById('modal-ajout').style.display = 'none';
-            document.getElementById('input-code').value = '';
-        });
-
-        // Valider le code
-        document.getElementById('btn-valider-code').addEventListener('click', function() {
-            const code = document.getElementById('input-code').value;
-            
-            if (code.length === 3 && /^\d+$/.test(code)) {
-                if (code === monCode) {
-                    alert('❌ Vous ne pouvez pas vous ajouter vous-même !');
-                    return;
-                }
-                
-                // Vérifier que le code n'est pas déjà dans la liste d'amis
-                const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
-                if (amis.find(ami => ami.code === code)) {
-                    alert('❌ Cet ami est déjà dans votre liste !');
-                    return;
-                }
-                
-                // Envoyer une invitation
-                const nomAmi = `Joueur_${code}`;
-                envoyerInvitation(code, nomJoueur, monCode);
-                
-                // Demander si on veut renommer
-                amiEnAttente = { nom: nomAmi, code: code };
-                document.getElementById('nom-actuel-ami').textContent = nomAmi;
-                document.getElementById('modal-ajout').style.display = 'none';
-                document.getElementById('modal-renommer').style.display = 'flex';
-                
-                document.getElementById('input-code').value = '';
-            } else {
-                alert('❌ Le code doit contenir 3 chiffres !');
-            }
-        });
-
         // Garder le nom original
         document.getElementById('btn-garder-nom').addEventListener('click', function() {
             if (amiEnAttente) {
@@ -339,13 +276,7 @@
         // Afficher les amis au chargement
         afficherAmis();
 
-        // Permettre d'appuyer sur Entrée pour valider
-        document.getElementById('input-code').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                document.getElementById('btn-valider-code').click();
-            }
-        });
-
+        // Permettre d'appuyer sur Entrée pour renommer
         document.getElementById('input-nouveau-nom').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('btn-confirmer-nom').click();

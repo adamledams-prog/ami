@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ma Base - Battle Royale</title>
     <link rel="stylesheet" href="stile.css">
+    <link rel="stylesheet" href="base.css">
     <style>
         .btn-retour {
             position: absolute;
@@ -31,7 +32,7 @@
         .compteur-pieces-base {
             position: absolute;
             top: 20px;
-            left: 150px;
+            left: 180px;
             background: rgba(255, 215, 0, 0.95);
             padding: 15px 25px;
             border-radius: 10px;
@@ -215,34 +216,171 @@
         </div>
     </div>
 
-    <script>
-        // Récupérer les données depuis localStorage
-        const nomStocke = localStorage.getItem('nomJoueur');
-        const couleurSauvee = localStorage.getItem('couleurNom');
-        const pieces = parseInt(localStorage.getItem('pieces')) || 0;
-        
-        // Afficher le nom
-        if (nomStocke) {
-            document.getElementById('nom-joueur-base').querySelector('span:last-child').textContent = nomStocke;
-        }
-        
-        // Appliquer la couleur de la carte de combat
-        if (couleurSauvee) {
-            document.getElementById('nom-joueur-base').style.background = couleurSauvee;
-        }
-        
-        // Afficher les pièces
-        document.getElementById('pieces-base').textContent = pieces;
-        
-        // Récupérer les données de la base
-        const fusilsPrets = parseInt(localStorage.getItem('fusilsPrets')) || 0;
-        const niveauBouclier = parseInt(localStorage.getItem('niveauBouclier')) || 1;
-        const nombreBases = parseInt(localStorage.getItem('nombreBases')) || 1;
-        
-        // Afficher les stats
-        document.getElementById('fusils-prets').textContent = fusilsPrets;
-        document.getElementById('niveau-bouclier').textContent = niveauBouclier;
-        document.getElementById('nombre-bases').textContent = nombreBases;
-    </script>
+    <!-- Bouton roue de récompenses (petit) -->
+    <button class="btn-roue-mini" id="btn-roue-mini">
+        <div class="roue-mini-icon">🎁</div>
+        <div class="roue-mini-timer" id="roue-mini-timer">0:00</div>
+    </button>
+
+    <!-- Modal de la roue de récompenses -->
+    <div class="modal" id="modal-roue" style="display: none;">
+        <div class="modal-content-roue">
+            <span class="modal-close" id="modal-close-roue">&times;</span>
+            <h2>⏰ Roue de Récompenses</h2>
+            
+            <div class="paliers-container">
+                <!-- Palier 1: 30s -->
+                <div class="palier-card" id="palier-0">
+                    <div class="palier-header">
+                        <span class="palier-icon">🎁</span>
+                        <div class="palier-info">
+                            <div class="palier-titre">Coffre Bronze</div>
+                            <div class="palier-temps">Temps : 30 secondes</div>
+                        </div>
+                        <div class="palier-status" id="status-0">🔒</div>
+                    </div>
+                    <div class="palier-progress">
+                        <div class="progress-bar-palier">
+                            <div class="progress-fill-palier" id="progress-0"></div>
+                        </div>
+                    </div>
+                    <button class="btn-reclamer-palier" id="btn-palier-0" style="display: none;">Réclamer</button>
+                </div>
+
+                <!-- Palier 2: 2min -->
+                <div class="palier-card" id="palier-1">
+                    <div class="palier-header">
+                        <span class="palier-icon">🪙</span>
+                        <div class="palier-info">
+                            <div class="palier-titre">20 Pièces d'Or</div>
+                            <div class="palier-temps">Temps : 2 minutes</div>
+                        </div>
+                        <div class="palier-status" id="status-1">🔒</div>
+                    </div>
+                    <div class="palier-progress">
+                        <div class="progress-bar-palier">
+                            <div class="progress-fill-palier" id="progress-1"></div>
+                        </div>
+                    </div>
+                    <button class="btn-reclamer-palier" id="btn-palier-1" style="display: none;">Réclamer</button>
+                </div>
+
+                <!-- Palier 3: 4min -->
+                <div class="palier-card" id="palier-2">
+                    <div class="palier-header">
+                        <span class="palier-icon">🪙</span>
+                        <div class="palier-info">
+                            <div class="palier-titre">30 Pièces d'Or</div>
+                            <div class="palier-temps">Temps : 4 minutes</div>
+                        </div>
+                        <div class="palier-status" id="status-2">🔒</div>
+                    </div>
+                    <div class="palier-progress">
+                        <div class="progress-bar-palier">
+                            <div class="progress-fill-palier" id="progress-2"></div>
+                        </div>
+                    </div>
+                    <button class="btn-reclamer-palier" id="btn-palier-2" style="display: none;">Réclamer</button>
+                </div>
+
+                <!-- Palier 4: 7min -->
+                <div class="palier-card" id="palier-3">
+                    <div class="palier-header">
+                        <span class="palier-icon">🎁</span>
+                        <div class="palier-info">
+                            <div class="palier-titre">3 Coffres Bronze</div>
+                            <div class="palier-temps">Temps : 7 minutes</div>
+                        </div>
+                        <div class="palier-status" id="status-3">🔒</div>
+                    </div>
+                    <div class="palier-progress">
+                        <div class="progress-bar-palier">
+                            <div class="progress-fill-palier" id="progress-3"></div>
+                        </div>
+                    </div>
+                    <button class="btn-reclamer-palier" id="btn-palier-3" style="display: none;">Réclamer</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal coffre -->
+    <div class="modal" id="modal-coffre" style="display: none;">
+        <div class="modal-content">
+            <!-- Confettis -->
+            <div class="confetti-container">
+                <div class="confetti" style="--i:1; --color:#ff6b6b">🎊</div>
+                <div class="confetti" style="--i:2; --color:#4ecdc4">🎉</div>
+                <div class="confetti" style="--i:3; --color:#ffd93d">💰</div>
+                <div class="confetti" style="--i:4; --color:#6bcf7f">🪙</div>
+                <div class="confetti" style="--i:5; --color:#a29bfe">✨</div>
+                <div class="confetti" style="--i:6; --color:#fd79a8">🎊</div>
+                <div class="confetti" style="--i:7; --color:#fdcb6e">🎉</div>
+                <div class="confetti" style="--i:8; --color:#74b9ff">💫</div>
+                <div class="confetti" style="--i:9; --color:#55efc4">🪙</div>
+                <div class="confetti" style="--i:10; --color:#ff7675">💰</div>
+            </div>
+            
+            <!-- Étoiles -->
+            <div class="stars-container">
+                <span class="star" style="--i:1">⭐</span>
+                <span class="star" style="--i:2">✨</span>
+                <span class="star" style="--i:3">💫</span>
+                <span class="star" style="--i:4">⭐</span>
+                <span class="star" style="--i:5">✨</span>
+                <span class="star" style="--i:6">💫</span>
+                <span class="star" style="--i:7">⭐</span>
+                <span class="star" style="--i:8">✨</span>
+            </div>
+            
+            <!-- Cercle de lumière -->
+            <div class="light-circle"></div>
+            
+            <h2>🎁 Coffre Bronze 🎁</h2>
+            
+            <!-- Coffre avec animation d'ouverture -->
+            <div class="coffre-wrapper">
+                <div class="coffre-animation" id="coffre-box">
+                    <div class="coffre-top">📦</div>
+                    <div class="coffre-bottom">📦</div>
+                    <div class="treasure-burst">
+                        <span>💰</span>
+                        <span>🪙</span>
+                        <span>💎</span>
+                        <span>✨</span>
+                        <span>🪙</span>
+                        <span>💰</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Rayons de lumière -->
+            <div class="rays-container">
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+                <div class="ray"></div>
+            </div>
+            
+            <!-- Particules de pièces -->
+            <div class="coins-particles">
+                <span class="coin-particle" style="--i:1">🪙</span>
+                <span class="coin-particle" style="--i:2">🪙</span>
+                <span class="coin-particle" style="--i:3">🪙</span>
+                <span class="coin-particle" style="--i:4">🪙</span>
+                <span class="coin-particle" style="--i:5">🪙</span>
+                <span class="coin-particle" style="--i:6">🪙</span>
+            </div>
+            
+            <p id="coffre-resultat"></p>
+            <button id="btn-ok-coffre">✨ Récupérer ✨</button>
+        </div>
+    </div>
+
+    <script src="base.js"></script>
 </body>
 </html>

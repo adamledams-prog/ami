@@ -1,0 +1,312 @@
+/* Header des quêtes */
+.quetes-header {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.quetes-header h1 {
+    font-size: 36px;
+    color: white;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.5);
+    margin: 0;
+}
+
+.compteur-pieces-quete {
+    background: rgba(255, 215, 0, 0.95);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* Container des quêtes */
+.quetes-container {
+    position: absolute;
+    top: 120px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 800px;
+    max-height: calc(100vh - 160px);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Carte de quête */
+.quete-card {
+    background: rgba(255, 255, 255, 0.95);
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    border-left: 4px solid #667eea;
+    transition: all 0.3s;
+}
+
+.quete-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.4);
+}
+
+.quete-card.complete {
+    border-left-color: #00cc00;
+    background: rgba(200, 255, 200, 0.9);
+}
+
+.quete-card.quete-locked {
+    border-left-color: #999;
+    opacity: 0.6;
+}
+
+/* Header de la quête */
+.quete-header {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.quete-icone {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+}
+
+.quete-card.complete .quete-icone {
+    background: linear-gradient(135deg, #00cc00, #009900);
+}
+
+.quete-card.quete-locked .quete-icone {
+    background: linear-gradient(135deg, #999, #666);
+}
+
+.quete-info h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.quete-info p {
+    margin: 5px 0 0 0;
+    font-size: 12px;
+    color: #666;
+}
+
+/* Barre de progression */
+.quete-progress {
+    margin: 15px 0;
+}
+
+.progress-bar {
+    width: 100%;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    position: relative;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #667eea, #764ba2);
+    transition: width 0.5s ease;
+    position: relative;
+}
+
+.progress-fill::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, 
+        transparent, 
+        rgba(255, 255, 255, 0.3), 
+        transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.progress-text {
+    margin-top: 6px;
+    font-size: 12px;
+    color: #666;
+    font-weight: bold;
+}
+
+/* Récompense */
+.quete-recompense {
+    background: rgba(255, 215, 0, 0.2);
+    padding: 8px 10px;
+    border-radius: 8px;
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 2px solid rgba(255, 215, 0, 0.5);
+}
+
+.recompense-label {
+    font-size: 12px;
+    color: #666;
+    font-weight: bold;
+}
+
+.recompense-valeur {
+    font-size: 14px;
+    color: #333;
+    font-weight: bold;
+}
+
+/* Bouton réclamer */
+.btn-reclamer {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    background: linear-gradient(135deg, #00cc00, #009900);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(0, 200, 0, 0.3);
+    transition: all 0.3s;
+}
+
+.btn-reclamer:hover {
+    background: linear-gradient(135deg, #009900, #006600);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 200, 0, 0.5);
+}
+
+.btn-reclamer:active {
+    transform: translateY(0);
+}
+
+/* Quête complétée */
+.quete-complete {
+    text-align: center;
+    font-size: 20px;
+    font-weight: bold;
+    color: #00cc00;
+    padding: 15px;
+    background: rgba(0, 200, 0, 0.1);
+    border-radius: 10px;
+    border: 2px solid #00cc00;
+}
+
+/* Bouton retour */
+.btn-retour {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+    z-index: 10;
+}
+
+.btn-retour:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+}
+
+/* Scrollbar */
+.quetes-container::-webkit-scrollbar {
+    width: 10px;
+}
+
+.quetes-container::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.quetes-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+    .quetes-header {
+        top: 15px;
+        gap: 15px;
+        flex-direction: column;
+    }
+
+    .quetes-header h1 {
+        font-size: 24px;
+    }
+
+    .compteur-pieces-quete {
+        padding: 8px 15px;
+        font-size: 16px;
+    }
+
+    .quetes-container {
+        top: 110px;
+        padding: 10px;
+        gap: 15px;
+    }
+
+    .quete-card {
+        padding: 15px;
+    }
+
+    .quete-icone {
+        width: 50px;
+        height: 50px;
+        font-size: 26px;
+    }
+
+    .quete-info h3 {
+        font-size: 18px;
+    }
+
+    .quete-info p {
+        font-size: 12px;
+    }
+
+    .progress-bar {
+        height: 20px;
+    }
+
+    .btn-reclamer {
+        padding: 12px;
+        font-size: 16px;
+    }
+
+    .btn-retour {
+        top: 10px;
+        left: 10px;
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+}
