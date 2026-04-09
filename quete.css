@@ -63,8 +63,18 @@
 }
 
 .quete-card.quete-locked {
-    border-left-color: #999;
-    opacity: 0.6;
+    border-left-color: #333;
+    background: rgba(50, 50, 50, 0.9);
+    opacity: 0.8;
+}
+
+.quete-card.quete-locked .quete-info h3,
+.quete-card.quete-locked .quete-info p {
+    color: #999;
+}
+
+.quete-card.quete-locked .quete-icone {
+    background: linear-gradient(135deg, #333, #555);
 }
 
 /* Header de la quête */

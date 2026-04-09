@@ -42,15 +42,15 @@
             <div class="quete-complete" style="display: none;">✅ Terminée</div>
         </div>
 
-        <div class="quete-card" id="quete-2" data-complete="false">
+        <div class="quete-card quete-locked" id="quete-2" data-complete="false">
             <div class="quete-header">
-                <div class="quete-icone">🔫</div>
+                <div class="quete-icone">🔒</div>
                 <div class="quete-info">
-                    <h3>Collectionne 2 armes</h3>
-                    <p>Obtiens 2 fusils prêts</p>
+                    <h3 id="titre-quete-2">Quête verrouillée</h3>
+                    <p id="desc-quete-2">Terminez la quête précédente pour déverrouiller</p>
                 </div>
             </div>
-            <div class="quete-progress">
+            <div class="quete-progress" id="progress-container-2" style="display: none;">
                 <div class="progress-bar">
                     <div class="progress-fill" id="progress-quete-2"></div>
                 </div>
@@ -58,7 +58,7 @@
                     Fusils prêts : <span id="fusils-count">0</span> / 2
                 </div>
             </div>
-            <div class="quete-recompense">
+            <div class="quete-recompense" id="recompense-quete-2" style="display: none;">
                 <span class="recompense-label">Récompense :</span>
                 <span class="recompense-valeur">🎁 1 Coffre Bronze</span>
             </div>
@@ -123,8 +123,26 @@
             // Animation de récompense
             this.textContent = '✅ Réclamé !';
             
+            // Déverrouiller la quête 2
+            document.getElementById('quete-2').classList.remove('quete-locked');
+            document.querySelector('#quete-2 .quete-icone').textContent = '🔫';
+            document.getElementById('titre-quete-2').textContent = 'Collectionne 2 armes';
+            document.getElementById('desc-quete-2').textContent = 'Obtiens 2 fusils prêts';
+            document.getElementById('progress-container-2').style.display = 'block';
+            document.getElementById('recompense-quete-2').style.display = 'flex';
+            
+            // Mettre à jour la progression de la quête 2
+            const fusilsPrets = parseInt(localStorage.getItem('fusilsPrets')) || 0;
+            const progressFill2 = document.getElementById('progress-quete-2');
+            const pourcentage2 = Math.min((fusilsPrets / 2) * 100, 100);
+            progressFill2.style.width = pourcentage2 + '%';
+            
+            if (fusilsPrets >= 2 && localStorage.getItem('quete2Reclamee') !== 'true') {
+                document.getElementById('btn-reclamer-2').style.display = 'block';
+            }
+            
             // Notification
-            alert('🎉 Félicitations !\n\nVous avez reçu 30 pièces ! 🪙');
+            alert('🎉 Félicitations !\n\nVous avez reçu 30 pièces ! 🪙\n\n🔓 Nouvelle quête déverrouillée !');
         });
 
         // ==== QUÊTE 2 : Avoir 2 armes ====
@@ -133,17 +151,28 @@
 
         const quete2Reclamee = localStorage.getItem('quete2Reclamee') === 'true';
 
-        // Barre de progression quête 2
-        const progressFill2 = document.getElementById('progress-quete-2');
-        const pourcentage2 = Math.min((fusilsPrets / 2) * 100, 100);
-        progressFill2.style.width = pourcentage2 + '%';
+        // Vérifier si la quête 1 est réclamée pour déverrouiller la quête 2
+        if (quete1Reclamee) {
+            // Déverrouiller la quête 2
+            document.getElementById('quete-2').classList.remove('quete-locked');
+            document.querySelector('#quete-2 .quete-icone').textContent = '🔫';
+            document.getElementById('titre-quete-2').textContent = 'Collectionne 2 armes';
+            document.getElementById('desc-quete-2').textContent = 'Obtiens 2 fusils prêts';
+            document.getElementById('progress-container-2').style.display = 'block';
+            document.getElementById('recompense-quete-2').style.display = 'flex';
+            
+            // Barre de progression quête 2
+            const progressFill2 = document.getElementById('progress-quete-2');
+            const pourcentage2 = Math.min((fusilsPrets / 2) * 100, 100);
+            progressFill2.style.width = pourcentage2 + '%';
 
-        // Gérer l'état de la quête 2
-        if (quete2Reclamee) {
-            document.getElementById('complete-2').style.display = 'block';
-            document.getElementById('quete-2').classList.add('complete');
-        } else if (fusilsPrets >= 2) {
-            document.getElementById('btn-reclamer-2').style.display = 'block';
+            // Gérer l'état de la quête 2
+            if (quete2Reclamee) {
+                document.getElementById('complete-2').style.display = 'block';
+                document.getElementById('quete-2').classList.add('complete');
+            } else if (fusilsPrets >= 2) {
+                document.getElementById('btn-reclamer-2').style.display = 'block';
+            }
         }
 
         // Bouton réclamer quête 2

@@ -224,7 +224,11 @@ function ouvrirCoffres(nombre) {
         // Afficher le résultat après l'ouverture
         setTimeout(() => {
             const resultatElement = document.getElementById('coffre-resultat');
-            resultatElement.textContent = `🎉 Vous avez gagné ${totalPieces} pièces ! 🪙`;
+            if (nombre > 1) {
+                resultatElement.textContent = `🎉 ${nombre} Coffres ouverts !\nVous avez gagné ${totalPieces} pièces ! 🪙`;
+            } else {
+                resultatElement.textContent = `🎉 Vous avez gagné ${totalPieces} pièces ! 🪙`;
+            }
             resultatElement.classList.add('result-animate');
             
             setTimeout(() => {

@@ -27,7 +27,7 @@
     <!-- Modal de confirmation -->
     <div class="modal" id="modal-confirmation" style="display: none;">
         <div class="modal-content">
-            <h2>✅ Demande envoyée !</h2>
+            <h2>✅ Succès !</h2>
             <p id="message-confirmation">Demande d'ami envoyée à : <span id="nom-destinataire"></span></p>
             <button id="btn-ok-confirmation">OK</button>
         </div>
@@ -96,17 +96,26 @@
         const nomRecu = urlParams.get('nom');
 
         if (codeRecu && nomRecu && codeRecu !== monCode) {
-            // Envoyer une invitation à l'autre personne
+            // Envoyer une invitation mutuelle
             setTimeout(() => {
+                // Envoyer une invitation à l'autre personne
                 envoyerInvitation(codeRecu, nomJoueur, monCode);
                 
-                // Demander si on veut renommer
-                amiEnAttente = { nom: nomRecu, code: codeRecu };
-                document.getElementById('nom-actuel-ami').textContent = nomRecu;
-                document.getElementById('modal-renommer').style.display = 'flex';
+                // Envoyer aussi une invitation à nous-mêmes (depuis l'autre personne)
+                envoyerInvitation(monCode, nomRecu, codeRecu);
+                
+                // Afficher une notification
+                document.getElementById('nom-destinataire').textContent = nomRecu;
+                document.getElementById('message-confirmation').textContent = `Demande d'ami envoyée à ${nomRecu}. Vérifiez vos invitations !`;
+                document.getElementById('modal-confirmation').style.display = 'flex';
                 
                 // Nettoyer l'URL
                 window.history.replaceState({}, document.title, window.location.pathname);
+                
+                // Vérifier les invitations pour afficher la notification
+                setTimeout(() => {
+                    verifierInvitations();
+                }, 1000);
             }, 500);
         }
 
@@ -124,12 +133,24 @@
         // Vérifier les invitations au chargement
         function verifierInvitations() {
             const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
+            const notifElement = document.getElementById('notification-invitations');
             
             if (invitations.length > 0) {
-                document.getElementById('notification-invitations').style.display = 'flex';
+                notifElement.style.display = 'flex';
+                const texte = invitations.length === 1 
+                    ? '🔔 1 nouvelle invitation !' 
+                    : `🔔 ${invitations.length} nouvelles invitations !`;
+                notifElement.querySelector('span').textContent = texte;
+            } else {
+                notifElement.style.display = 'none';
             }
         }
         verifierInvitations();
+        
+        // Vérifier régulièrement les nouvelles invitations (toutes les 3 secondes)
+        setInterval(() => {
+            verifierInvitations();
+        }, 3000);
 
         // Clic sur notification
         document.getElementById('notification-invitations').addEventListener('click', function() {
@@ -151,7 +172,7 @@
                     invDiv.className = 'invitation-card';
                     invDiv.innerHTML = `
                         <div class="invitation-info">
-                            <p>Tu as eu une invitation de <strong>${inv.de}</strong></p>
+                            <p><strong>${inv.de}</strong> veut devenir ami avec toi ! 👋</p>
                         </div>
                         <div class="invitation-actions">
                             <button class="btn-accepter" onclick="accepterInvitation(${index})">✓ Accepter</button>
@@ -170,15 +191,31 @@
             const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
             const invitation = invitations[index];
             
+            // Vérifier si on n'est pas déjà ami
+            const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+            const dejaAmi = amis.find(ami => ami.code === invitation.code);
+            
+            if (dejaAmi) {
+                alert('Vous êtes déjà ami avec cette personne !');
+                invitations.splice(index, 1);
+                localStorage.setItem('invitations_' + monCode, JSON.stringify(invitations));
+                afficherInvitations();
+                return;
+            }
+            
             // Demander si on veut renommer
             amiEnAttente = { nom: invitation.de, code: invitation.code };
             document.getElementById('nom-actuel-ami').textContent = invitation.de;
             document.getElementById('modal-invitations').style.display = 'none';
             document.getElementById('modal-renommer').style.display = 'flex';
+            verifierInvitations();
             
             // Retirer l'invitation
             invitations.splice(index, 1);
             localStorage.setItem('invitations_' + monCode, JSON.stringify(invitations));
+            
+            // Mettre à jour l'affichage de la notification
+            verifierInvitations();
         }
 
         // Refuser une invitation
@@ -232,7 +269,10 @@
                 afficherAmis();
                 
                 // Confirmation
-                document.getElementById('nom-destinataire').textContent = nom;
+                document.getElementById('nessage-confirmation').textContent = `${nom} a été ajouté à vos amis ! 🎉`;
+                document.getElementById('modal-confirmation').style.display = 'flex';
+            } else {
+                alert('Vous êtes déjà ami avec cette personne !')
                 document.getElementById('modal-confirmation').style.display = 'flex';
             }
         }
