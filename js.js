@@ -78,6 +78,8 @@ menuBtns.forEach(btn => {
             window.location.href = 'profil.html';
         } else if (this.textContent === 'Fusil') {
             window.location.href = 'carte.html';
+        } else if (this.textContent === 'Ami') {
+            window.location.href = 'ami.html';
         } else if (this.textContent === 'Ma base') {
             window.location.href = 'base.html';
         }

@@ -1,0 +1,501 @@
+/* QR Code en haut à gauche */
+.mon-qrcode {
+    position: absolute;
+    top: 80px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    z-index: 10;
+}
+
+.qrcode-titre {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+}
+
+#qrcode-container {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+#qrcode-container img {
+    display: block;
+    border-radius: 5px;
+}
+
+.mon-code {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+    background: linear-gradient(135deg, #ffd700, #f39c12);
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+#mon-code-chiffres {
+    font-size: 28px;
+    color: #fff;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    letter-spacing: 3px;
+}
+
+/* Bouton + en haut à droite */
+.btn-ajouter {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
+    font-size: 42px;
+    font-weight: bold;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 15px rgba(0, 200, 0, 0.4);
+    transition: all 0.3s;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 1;
+}
+
+.btn-ajouter:hover {
+    background: linear-gradient(135deg, #00cc00, #009900);
+    transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 8px 20px rgba(0, 200, 0, 0.6);
+}
+
+.btn-ajouter:active {
+    transform: scale(1.05) rotate(90deg);
+}
+
+/* Liste des amis */
+.liste-amis {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 600px;
+    max-width: 90%;
+    max-height: 60vh;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    overflow-y: auto;
+}
+
+.liste-amis h2 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 25px;
+    font-size: 28px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+#amis-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.aucun-ami {
+    text-align: center;
+    color: #666;
+    font-size: 18px;
+    padding: 30px;
+    font-style: italic;
+}
+
+.ami-card {
+    background: linear-gradient(135deg, rgba(100, 150, 255, 0.2), rgba(150, 100, 255, 0.2));
+    padding: 20px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+}
+
+.ami-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
+    background: linear-gradient(135deg, rgba(100, 150, 255, 0.3), rgba(150, 100, 255, 0.3));
+}
+
+.ami-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.ami-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.ami-details {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.ami-nom {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+.ami-code {
+    font-size: 14px;
+    color: #666;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 3px 10px;
+    border-radius: 5px;
+    display: inline-block;
+}
+
+.btn-supprimer {
+    width: 45px;
+    height: 45px;
+    font-size: 22px;
+    border: none;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 3px 10px rgba(255, 0, 0, 0.3);
+    transition: all 0.3s;
+}
+
+.btn-supprimer:hover {
+    background: linear-gradient(135deg, #cc0000, #990000);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(255, 0, 0, 0.5);
+}
+
+.btn-supprimer:active {
+    transform: scale(1.05);
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.modal-content {
+    background: white;
+    padding: 40px;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    max-width: 450px;
+    width: 90%;
+    position: relative;
+    animation: slideIn 0.3s;
+    text-align: center;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 32px;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.modal-close:hover {
+    color: #333;
+    transform: scale(1.2);
+}
+
+.modal-content h2 {
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 26px;
+}
+
+.modal-content p {
+    color: #666;
+    margin-bottom: 25px;
+    font-size: 16px;
+}
+
+#input-code {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 28px;
+    border: 3px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    margin-bottom: 20px;
+    letter-spacing: 10px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+#input-code:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+}
+
+#btn-valider-code,
+#btn-ok-confirmation {
+    width: 100%;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    transition: all 0.3s;
+}
+
+#btn-valider-code:hover,
+#btn-ok-confirmation:hover {
+    background: linear-gradient(135deg, #764ba2, #667eea);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+}
+
+#btn-valider-code:active,
+#btn-ok-confirmation:active {
+    transform: translateY(0);
+}
+
+#message-confirmation {
+    font-size: 18px;
+    color: #333;
+    background: rgba(0, 255, 0, 0.1);
+    padding: 15px;
+    border-radius: 10px;
+    border-left: 4px solid #00cc00;
+}
+
+#nom-destinataire {
+    font-weight: bold;
+    color: #667eea;
+}
+
+/* Bouton retour */
+.btn-retour {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    color: #333;
+    cursor: pointer;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s;
+    z-index: 10;
+}
+
+.btn-retour:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.05);
+}
+
+/* Scrollbar personnalisée */
+.liste-amis::-webkit-scrollbar {
+    width: 10px;
+}
+
+.liste-amis::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+
+.liste-amis::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    border-radius: 10px;
+}
+
+.liste-amis::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
+/* Responsive pour mobile */
+@media (max-width: 768px) {
+    .mon-qrcode {
+        top: 60px;
+        left: 10px;
+        padding: 12px;
+        border-radius: 10px;
+    }
+
+    .qrcode-titre {
+        font-size: 12px;
+    }
+
+    #qrcode-container {
+        padding: 5px;
+    }
+
+    #qrcode-container img {
+        width: 100px !important;
+        height: 100px !important;
+    }
+
+    .mon-code {
+        font-size: 12px;
+        padding: 5px 10px;
+    }
+
+    #mon-code-chiffres {
+        font-size: 18px;
+        letter-spacing: 2px;
+    }
+
+    .btn-ajouter {
+        top: 10px;
+        right: 10px;
+        width: 50px;
+        height: 50px;
+        font-size: 32px;
+    }
+
+    .btn-retour {
+        top: 10px;
+        left: 10px;
+        padding: 8px 15px;
+        font-size: 12px;
+    }
+
+    .liste-amis {
+        width: 95%;
+        max-height: 50vh;
+        padding: 15px;
+        top: 55%;
+    }
+
+    .liste-amis h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .aucun-ami {
+        font-size: 14px;
+        padding: 20px 10px;
+    }
+
+    .ami-card {
+        padding: 12px;
+    }
+
+    .ami-avatar {
+        width: 45px;
+        height: 45px;
+        font-size: 24px;
+    }
+
+    .ami-nom {
+        font-size: 16px;
+    }
+
+    .ami-code {
+        font-size: 12px;
+        padding: 2px 8px;
+    }
+
+    .btn-supprimer {
+        width: 35px;
+        height: 35px;
+        font-size: 18px;
+    }
+
+    .modal-content {
+        padding: 25px;
+        width: 90%;
+    }
+
+    .modal-content h2 {
+        font-size: 20px;
+        margin-bottom: 15px;
+    }
+
+    .modal-content p {
+        font-size: 14px;
+        margin-bottom: 15px;
+    }
+
+    #input-code {
+        padding: 12px 15px;
+        font-size: 22px;
+        letter-spacing: 8px;
+        margin-bottom: 15px;
+    }
+
+    #btn-valider-code,
+    #btn-ok-confirmation {
+        padding: 12px 20px;
+        font-size: 16px;
+    }
+
+    #message-confirmation {
+        font-size: 14px;
+        padding: 12px;
+    }
+}

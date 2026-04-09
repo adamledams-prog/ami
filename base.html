@@ -123,6 +123,65 @@
             font-size: 24px;
             box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
         }
+
+        /* Responsive mobile */
+        @media (max-width: 768px) {
+            .btn-retour {
+                top: 10px;
+                left: 10px;
+                padding: 8px 15px;
+                font-size: 12px;
+            }
+
+            .compteur-pieces-base {
+                top: 10px;
+                left: 10px;
+                padding: 8px 15px;
+                font-size: 16px;
+                position: relative;
+                display: inline-block;
+                margin-bottom: 10px;
+            }
+
+            .nom-joueur-base {
+                top: 10px;
+                right: 10px;
+                padding: 8px 15px;
+                font-size: 14px;
+                gap: 8px;
+            }
+
+            .icone-piece-nom {
+                font-size: 18px;
+            }
+
+            .stats-container {
+                bottom: 15px;
+                padding: 0 10px;
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .stats-gauche {
+                gap: 10px;
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            .stat-box {
+                padding: 15px;
+                min-width: 80px;
+                gap: 8px;
+            }
+
+            .stat-label {
+                font-size: 28px;
+            }
+
+            .stat-value {
+                font-size: 24px;
+            }
+        }
     </style>
 </head>
 <body>

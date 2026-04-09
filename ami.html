@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amis - Battle Royale</title>
+    <link rel="stylesheet" href="stile.css">
+    <link rel="stylesheet" href="ami.css">
+</head>
+<body>
+    <button class="btn-retour" onclick="window.location.href='index.html'">← Retour</button>
+
+    <!-- Mon QR Code en haut à gauche -->
+    <div class="mon-qrcode">
+        <div class="qrcode-titre">Mon QR Code</div>
+        <div id="qrcode-container"></div>
+        <div class="mon-code">
+            Code : <span id="mon-code-chiffres">000</span>
+        </div>
+    </div>
+
+    <!-- Bouton + en haut à droite -->
+    <button class="btn-ajouter" id="btn-ajouter">+</button>
+
+    <!-- Liste des amis -->
+    <div class="liste-amis" id="liste-amis">
+        <h2>Mes Amis</h2>
+        <div id="amis-container">
+            <p class="aucun-ami">Aucun ami pour le moment. Ajoutez-en !</p>
+        </div>
+    </div>
+
+    <!-- Modal pour ajouter un ami -->
+    <div class="modal" id="modal-ajout" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close">&times;</span>
+            <h2>Ajouter un ami</h2>
+            <p>Entrez le code de votre ami (3 chiffres)</p>
+            <input type="text" id="input-code" maxlength="3" pattern="[0-9]{3}" placeholder="000">
+            <button id="btn-valider-code">Envoyer la demande</button>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div class="modal" id="modal-confirmation" style="display: none;">
+        <div class="modal-content">
+            <h2>✅ Demande envoyée !</h2>
+            <p id="message-confirmation">Demande d'ami envoyée à : <span id="nom-destinataire"></span></p>
+            <button id="btn-ok-confirmation">OK</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <script>
+        // Récupérer ou générer le code unique du joueur
+        let monCode = localStorage.getItem('monCodeAmi');
+        if (!monCode) {
+            // Générer un code aléatoire à 3 chiffres (100-999)
+            monCode = Math.floor(100 + Math.random() * 900).toString();
+            localStorage.setItem('monCodeAmi', monCode);
+        }
+
+        // Afficher le code
+        document.getElementById('mon-code-chiffres').textContent = monCode;
+
+        // Récupérer le nom du joueur
+        const nomJoueur = localStorage.getItem('nomJoueur') || 'Joueur';
+
+        // Générer le QR Code
+        const qrcodeUrl = `${window.location.origin}${window.location.pathname.replace('ami.html', '')}ami.html?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
+        
+        const qrcode = new QRCode(document.getElementById('qrcode-container'), {
+            text: qrcodeUrl,
+            width: 150,
+            height: 150,
+            colorDark: "#000000",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+        });
+
+        // Vérifier si on arrive avec un code (scan QR ou lien)
+        const urlParams = new URLSearchParams(window.location.search);
+        const codeRecu = urlParams.get('code');
+        const nomRecu = urlParams.get('nom');
+
+        if (codeRecu && nomRecu && codeRecu !== monCode) {
+            // Afficher la confirmation d'ajout
+            setTimeout(() => {
+                document.getElementById('nom-destinataire').textContent = nomRecu;
+                document.getElementById('modal-confirmation').style.display = 'flex';
+                
+                // Ajouter l'ami à la liste
+                ajouterAmi(nomRecu, codeRecu);
+                
+                // Nettoyer l'URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }, 500);
+        }
+
+        // Gestion du bouton +
+        document.getElementById('btn-ajouter').addEventListener('click', function() {
+            document.getElementById('modal-ajout').style.display = 'flex';
+            document.getElementById('input-code').focus();
+        });
+
+        // Fermer le modal
+        document.getElementById('modal-close').addEventListener('click', function() {
+            document.getElementById('modal-ajout').style.display = 'none';
+            document.getElementById('input-code').value = '';
+        });
+
+        // Valider le code
+        document.getElementById('btn-valider-code').addEventListener('click', function() {
+            const code = document.getElementById('input-code').value;
+            
+            if (code.length === 3 && /^\d+$/.test(code)) {
+                if (code === monCode) {
+                    alert('❌ Vous ne pouvez pas vous ajouter vous-même !');
+                    return;
+                }
+                
+                // Simuler l'envoi de la demande
+                const nomAmi = `Joueur_${code}`;
+                
+                document.getElementById('nom-destinataire').textContent = nomAmi;
+                document.getElementById('modal-ajout').style.display = 'none';
+                document.getElementById('modal-confirmation').style.display = 'flex';
+                
+                // Ajouter l'ami
+                ajouterAmi(nomAmi, code);
+                
+                document.getElementById('input-code').value = '';
+            } else {
+                alert('❌ Le code doit contenir 3 chiffres !');
+            }
+        });
+
+        // Fermer la confirmation
+        document.getElementById('btn-ok-confirmation').addEventListener('click', function() {
+            document.getElementById('modal-confirmation').style.display = 'none';
+        });
+
+        // Fonction pour ajouter un ami
+        function ajouterAmi(nom, code) {
+            let amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+            
+            // Vérifier si l'ami existe déjà
+            if (!amis.find(ami => ami.code === code)) {
+                amis.push({ nom: nom, code: code });
+                localStorage.setItem('mesAmis', JSON.stringify(amis));
+                afficherAmis();
+            }
+        }
+
+        // Fonction pour afficher les amis
+        function afficherAmis() {
+            const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+            const container = document.getElementById('amis-container');
+            
+            if (amis.length === 0) {
+                container.innerHTML = '<p class="aucun-ami">Aucun ami pour le moment. Ajoutez-en !</p>';
+            } else {
+                container.innerHTML = '';
+                amis.forEach((ami, index) => {
+                    const amiDiv = document.createElement('div');
+                    amiDiv.className = 'ami-card';
+                    amiDiv.innerHTML = `
+                        <div class="ami-info">
+                            <div class="ami-avatar">👤</div>
+                            <div class="ami-details">
+                                <div class="ami-nom">${ami.nom}</div>
+                                <div class="ami-code">Code : ${ami.code}</div>
+                            </div>
+                        </div>
+                        <button class="btn-supprimer" onclick="supprimerAmi(${index})">🗑️</button>
+                    `;
+                    container.appendChild(amiDiv);
+                });
+            }
+        }
+
+        // Fonction pour supprimer un ami
+        function supprimerAmi(index) {
+            if (confirm('Voulez-vous vraiment supprimer cet ami ?')) {
+                let amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+                amis.splice(index, 1);
+                localStorage.setItem('mesAmis', JSON.stringify(amis));
+                afficherAmis();
+            }
+        }
+
+        // Afficher les amis au chargement
+        afficherAmis();
+
+        // Permettre d'appuyer sur Entrée pour valider
+        document.getElementById('input-code').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('btn-valider-code').click();
+            }
+        });
+    </script>
+</body>
+</html>
