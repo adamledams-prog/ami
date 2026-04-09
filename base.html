@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ma Base - Battle Royale</title>
+    <link rel="stylesheet" href="stile.css">
+    <style>
+        .btn-retour {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            z-index: 100;
+        }
+
+        .btn-retour:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+
+        .compteur-pieces-base {
+            position: absolute;
+            top: 20px;
+            left: 150px;
+            background: rgba(255, 215, 0, 0.95);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .nom-joueur-base {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            font-size: 22px;
+            font-weight: bold;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            color: #fff;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .icone-piece-nom {
+            font-size: 28px;
+            filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.5));
+        }
+
+        .stats-container {
+            position: absolute;
+            bottom: 30px;
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            padding: 0 30px;
+            box-sizing: border-box;
+        }
+
+        .stats-gauche {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, rgba(44, 62, 80, 0.95), rgba(52, 73, 94, 0.95));
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+            border: 3px solid rgba(243, 156, 18, 0.8);
+            min-width: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .stat-label {
+            font-size: 40px;
+            filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.7));
+        }
+
+        .stat-icon {
+            font-size: 28px;
+        }
+
+        .stat-value {
+            font-size: 38px;
+            font-weight: bold;
+            color: #f39c12;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+            background: linear-gradient(to bottom, #ffd700, #f39c12);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .base-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255, 255, 255, 0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <button class="btn-retour" onclick="window.location.href='index.html'">← Retour</button>
+
+    <div class="compteur-pieces-base">
+        🪙 <span id="pieces-base">0</span>
+    </div>
+
+    <div class="nom-joueur-base" id="nom-joueur-base">
+        <span class="icone-piece-nom">🪙</span>
+        <span>Joueur</span>
+    </div>
+
+    <div class="stats-container">
+        <div class="stats-gauche">
+            <div class="stat-box">
+                <div class="stat-label">🔫</div>
+                <div class="stat-value" id="fusils-prets">0</div>
+            </div>
+
+            <div class="stat-box">
+                <div class="stat-label">🛡️</div>
+                <div class="stat-value" id="niveau-bouclier">1</div>
+            </div>
+        </div>
+
+        <div class="stat-box">
+            <div class="stat-label">🏗️</div>
+            <div class="stat-value" id="nombre-bases">1</div>
+        </div>
+    </div>
+
+    <script>
+        // Récupérer les données depuis localStorage
+        const nomStocke = localStorage.getItem('nomJoueur');
+        const couleurSauvee = localStorage.getItem('couleurNom');
+        const pieces = parseInt(localStorage.getItem('pieces')) || 0;
+        
+        // Afficher le nom
+        if (nomStocke) {
+            document.getElementById('nom-joueur-base').querySelector('span:last-child').textContent = nomStocke;
+        }
+        
+        // Appliquer la couleur de la carte de combat
+        if (couleurSauvee) {
+            document.getElementById('nom-joueur-base').style.background = couleurSauvee;
+        }
+        
+        // Afficher les pièces
+        document.getElementById('pieces-base').textContent = pieces;
+        
+        // Récupérer les données de la base
+        const fusilsPrets = parseInt(localStorage.getItem('fusilsPrets')) || 0;
+        const niveauBouclier = parseInt(localStorage.getItem('niveauBouclier')) || 1;
+        const nombreBases = parseInt(localStorage.getItem('nombreBases')) || 1;
+        
+        // Afficher les stats
+        document.getElementById('fusils-prets').textContent = fusilsPrets;
+        document.getElementById('niveau-bouclier').textContent = niveauBouclier;
+        document.getElementById('nombre-bases').textContent = nombreBases;
+    </script>
+</body>
+</html>
