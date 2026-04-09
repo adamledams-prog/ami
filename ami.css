@@ -169,15 +169,6 @@
     color: #333;
 }
 
-.ami-code {
-    font-size: 14px;
-    color: #666;
-    background: rgba(255, 255, 255, 0.7);
-    padding: 3px 10px;
-    border-radius: 5px;
-    display: inline-block;
-}
-
 .btn-supprimer {
     width: 45px;
     height: 45px;
@@ -335,6 +326,155 @@
     color: #667eea;
 }
 
+#nom-destinataire {
+    font-weight: bold;
+    color: #667eea;
+}
+
+/* Notification d'invitations */
+.notification-invitations {
+    position: fixed;
+    top: 100px;
+    right: 20px;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a6f);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 10px;
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 200;
+    animation: pulse 2s infinite;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.notification-invitations:hover {
+    background: linear-gradient(135deg, #ee5a6f, #ff6b6b);
+    transform: scale(1.1);
+}
+
+/* Invitations */
+.invitation-card {
+    background: linear-gradient(135deg, rgba(255, 200, 0, 0.2), rgba(255, 150, 0, 0.2));
+    padding: 20px;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    border: 2px solid rgba(255, 200, 0, 0.5);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.invitation-info {
+    margin-bottom: 15px;
+}
+
+.invitation-info p {
+    font-size: 16px;
+    color: #333;
+    margin: 0;
+}
+
+.invitation-info strong {
+    color: #667eea;
+    font-size: 18px;
+}
+
+.invitation-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-accepter,
+.btn-refuser {
+    flex: 1;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-accepter {
+    background: linear-gradient(135deg, #00cc00, #009900);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 200, 0, 0.3);
+}
+
+.btn-accepter:hover {
+    background: linear-gradient(135deg, #009900, #006600);
+    transform: translateY(-2px);
+}
+
+.btn-refuser {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+.btn-refuser:hover {
+    background: linear-gradient(135deg, #cc0000, #990000);
+    transform: translateY(-2px);
+}
+
+/* Input renommer */
+#input-nouveau-nom {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: 3px solid #ddd;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    transition: all 0.3s;
+}
+
+#input-nouveau-nom:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 10px rgba(102, 126, 234, 0.3);
+}
+
+#btn-garder-nom,
+#btn-confirmer-nom {
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+#btn-garder-nom {
+    background: linear-gradient(135deg, #999, #777);
+    color: white;
+}
+
+#btn-garder-nom:hover {
+    background: linear-gradient(135deg, #777, #555);
+}
+
+#btn-confirmer-nom {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+#btn-confirmer-nom:hover {
+    background: linear-gradient(135deg, #764ba2, #667eea);
+}
+
 /* Bouton retour */
 .btn-retour {
     position: absolute;
@@ -455,15 +595,46 @@
         font-size: 16px;
     }
 
-    .ami-code {
-        font-size: 12px;
-        padding: 2px 8px;
-    }
-
     .btn-supprimer {
         width: 35px;
         height: 35px;
         font-size: 18px;
+    }
+
+    .notification-invitations {
+        top: 70px;
+        right: 10px;
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    .invitation-card {
+        padding: 15px;
+    }
+
+    .invitation-info p {
+        font-size: 14px;
+    }
+
+    .invitation-info strong {
+        font-size: 16px;
+    }
+
+    .btn-accepter,
+    .btn-refuser {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    #input-nouveau-nom {
+        padding: 10px 15px;
+        font-size: 14px;
+    }
+
+    #btn-garder-nom,
+    #btn-confirmer-nom {
+        padding: 10px 15px;
+        font-size: 14px;
     }
 
     .modal-content {

@@ -50,14 +50,56 @@
         </div>
     </div>
 
+    <!-- Modal renommer ami -->
+    <div class="modal" id="modal-renommer" style="display: none;">
+        <div class="modal-content">
+            <h2>👤 Renommer cet ami ?</h2>
+            <p>Nom actuel : <span id="nom-actuel-ami"></span></p>
+            <input type="text" id="input-nouveau-nom" placeholder="Nouveau nom (optionnel)">
+            <div style="display: flex; gap: 10px; margin-top: 15px;">
+                <button id="btn-garder-nom" style="flex: 1;">Garder</button>
+                <button id="btn-confirmer-nom" style="flex: 1;">Renommer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal invitations reçues -->
+    <div class="modal" id="modal-invitations" style="display: none;">
+        <div class="modal-content">
+            <span class="modal-close" id="modal-close-invitations">&times;</span>
+            <h2>📬 Invitations reçues</h2>
+            <div id="liste-invitations"></div>
+        </div>
+    </div>
+
+    <!-- Notification d'invitations -->
+    <div class="notification-invitations" id="notification-invitations" style="display: none;">
+        <span>🔔 Nouvelles invitations !</span>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
+        // Initialiser la liste des codes valides (simulation d'une base de données)
+        function initCodesValides() {
+            if (!localStorage.getItem('codesValides')) {
+                localStorage.setItem('codesValides', JSON.stringify([]));
+            }
+        }
+        initCodesValides();
+
         // Récupérer ou générer le code unique du joueur
         let monCode = localStorage.getItem('monCodeAmi');
         if (!monCode) {
             // Générer un code aléatoire à 3 chiffres (100-999)
             monCode = Math.floor(100 + Math.random() * 900).toString();
             localStorage.setItem('monCodeAmi', monCode);
+            
+            // Ajouter mon code à la liste des codes valides
+            let codesValides = JSON.parse(localStorage.getItem('codesValides')) || [];
+            if (!codesValides.includes(monCode)) {
+                codesValides.push(monCode);
+                localStorage.setItem('codesValides', JSON.stringify(codesValides));
+            }
         }
 
         // Afficher le code
@@ -67,7 +109,7 @@
         const nomJoueur = localStorage.getItem('nomJoueur') || 'Joueur';
 
         // Générer le QR Code
-        const qrcodeUrl = `${window.location.origin}${window.location.pathname.replace('ami.html', '')}ami.html?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
+        const qrcodeUrl = `${window.location.origin}${window.location.pathname}?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
         
         const qrcode = new QRCode(document.getElementById('qrcode-container'), {
             text: qrcodeUrl,
@@ -78,24 +120,112 @@
             correctLevel: QRCode.CorrectLevel.H
         });
 
+        // Variable temporaire pour l'ami en attente
+        let amiEnAttente = null;
+
         // Vérifier si on arrive avec un code (scan QR ou lien)
         const urlParams = new URLSearchParams(window.location.search);
         const codeRecu = urlParams.get('code');
         const nomRecu = urlParams.get('nom');
 
         if (codeRecu && nomRecu && codeRecu !== monCode) {
-            // Afficher la confirmation d'ajout
+            // Envoyer une invitation à l'autre personne
             setTimeout(() => {
-                document.getElementById('nom-destinataire').textContent = nomRecu;
-                document.getElementById('modal-confirmation').style.display = 'flex';
+                envoyerInvitation(codeRecu, nomJoueur, monCode);
                 
-                // Ajouter l'ami à la liste
-                ajouterAmi(nomRecu, codeRecu);
+                // Demander si on veut renommer
+                amiEnAttente = { nom: nomRecu, code: codeRecu };
+                document.getElementById('nom-actuel-ami').textContent = nomRecu;
+                document.getElementById('modal-renommer').style.display = 'flex';
                 
                 // Nettoyer l'URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             }, 500);
         }
+
+        // Fonction pour envoyer une invitation
+        function envoyerInvitation(codeDestinataire, expediteur, codeExpediteur) {
+            let invitations = JSON.parse(localStorage.getItem('invitations_' + codeDestinataire)) || [];
+            invitations.push({
+                de: expediteur,
+                code: codeExpediteur,
+                date: Date.now()
+            });
+            localStorage.setItem('invitations_' + codeDestinataire, JSON.stringify(invitations));
+        }
+
+        // Vérifier les invitations au chargement
+        function verifierInvitations() {
+            const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
+            
+            if (invitations.length > 0) {
+                document.getElementById('notification-invitations').style.display = 'flex';
+            }
+        }
+        verifierInvitations();
+
+        // Clic sur notification
+        document.getElementById('notification-invitations').addEventListener('click', function() {
+            afficherInvitations();
+            this.style.display = 'none';
+        });
+
+        // Afficher les invitations
+        function afficherInvitations() {
+            const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
+            const liste = document.getElementById('liste-invitations');
+            
+            if (invitations.length === 0) {
+                liste.innerHTML = '<p class="aucun-ami">Aucune invitation</p>';
+            } else {
+                liste.innerHTML = '';
+                invitations.forEach((inv, index) => {
+                    const invDiv = document.createElement('div');
+                    invDiv.className = 'invitation-card';
+                    invDiv.innerHTML = `
+                        <div class="invitation-info">
+                            <p>Tu as eu une invitation de <strong>${inv.de}</strong></p>
+                        </div>
+                        <div class="invitation-actions">
+                            <button class="btn-accepter" onclick="accepterInvitation(${index})">✓ Accepter</button>
+                            <button class="btn-refuser" onclick="refuserInvitation(${index})">✗ Refuser</button>
+                        </div>
+                    `;
+                    liste.appendChild(invDiv);
+                });
+            }
+            
+            document.getElementById('modal-invitations').style.display = 'flex';
+        }
+
+        // Accepter une invitation
+        function accepterInvitation(index) {
+            const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
+            const invitation = invitations[index];
+            
+            // Demander si on veut renommer
+            amiEnAttente = { nom: invitation.de, code: invitation.code };
+            document.getElementById('nom-actuel-ami').textContent = invitation.de;
+            document.getElementById('modal-invitations').style.display = 'none';
+            document.getElementById('modal-renommer').style.display = 'flex';
+            
+            // Retirer l'invitation
+            invitations.splice(index, 1);
+            localStorage.setItem('invitations_' + monCode, JSON.stringify(invitations));
+        }
+
+        // Refuser une invitation
+        function refuserInvitation(index) {
+            const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
+            invitations.splice(index, 1);
+            localStorage.setItem('invitations_' + monCode, JSON.stringify(invitations));
+            afficherInvitations();
+        }
+
+        // Fermer modal invitations
+        document.getElementById('modal-close-invitations').addEventListener('click', function() {
+            document.getElementById('modal-invitations').style.display = 'none';
+        });
 
         // Gestion du bouton +
         document.getElementById('btn-ajouter').addEventListener('click', function() {
@@ -119,19 +249,48 @@
                     return;
                 }
                 
-                // Simuler l'envoi de la demande
+                // Vérifier si le code existe
+                const codesValides = JSON.parse(localStorage.getItem('codesValides')) || [];
+                if (!codesValides.includes(code)) {
+                    alert('❌ Ce code n\'existe pas ! Veuillez entrer un code valide.');
+                    return;
+                }
+                
+                // Envoyer une invitation
                 const nomAmi = `Joueur_${code}`;
+                envoyerInvitation(code, nomJoueur, monCode);
                 
-                document.getElementById('nom-destinataire').textContent = nomAmi;
+                // Demander si on veut renommer
+                amiEnAttente = { nom: nomAmi, code: code };
+                document.getElementById('nom-actuel-ami').textContent = nomAmi;
                 document.getElementById('modal-ajout').style.display = 'none';
-                document.getElementById('modal-confirmation').style.display = 'flex';
-                
-                // Ajouter l'ami
-                ajouterAmi(nomAmi, code);
+                document.getElementById('modal-renommer').style.display = 'flex';
                 
                 document.getElementById('input-code').value = '';
             } else {
                 alert('❌ Le code doit contenir 3 chiffres !');
+            }
+        });
+
+        // Garder le nom original
+        document.getElementById('btn-garder-nom').addEventListener('click', function() {
+            if (amiEnAttente) {
+                ajouterAmi(amiEnAttente.nom, amiEnAttente.code);
+                document.getElementById('modal-renommer').style.display = 'none';
+                document.getElementById('input-nouveau-nom').value = '';
+                amiEnAttente = null;
+            }
+        });
+
+        // Renommer et ajouter
+        document.getElementById('btn-confirmer-nom').addEventListener('click', function() {
+            if (amiEnAttente) {
+                const nouveauNom = document.getElementById('input-nouveau-nom').value.trim();
+                const nomFinal = nouveauNom || amiEnAttente.nom;
+                ajouterAmi(nomFinal, amiEnAttente.code);
+                document.getElementById('modal-renommer').style.display = 'none';
+                document.getElementById('input-nouveau-nom').value = '';
+                amiEnAttente = null;
             }
         });
 
@@ -149,6 +308,10 @@
                 amis.push({ nom: nom, code: code });
                 localStorage.setItem('mesAmis', JSON.stringify(amis));
                 afficherAmis();
+                
+                // Confirmation
+                document.getElementById('nom-destinataire').textContent = nom;
+                document.getElementById('modal-confirmation').style.display = 'flex';
             }
         }
 
@@ -169,7 +332,6 @@
                             <div class="ami-avatar">👤</div>
                             <div class="ami-details">
                                 <div class="ami-nom">${ami.nom}</div>
-                                <div class="ami-code">Code : ${ami.code}</div>
                             </div>
                         </div>
                         <button class="btn-supprimer" onclick="supprimerAmi(${index})">🗑️</button>
@@ -196,6 +358,12 @@
         document.getElementById('input-code').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 document.getElementById('btn-valider-code').click();
+            }
+        });
+
+        document.getElementById('input-nouveau-nom').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('btn-confirmer-nom').click();
             }
         });
     </script>
