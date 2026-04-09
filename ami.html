@@ -79,27 +79,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
     <script>
-        // Initialiser la liste des codes valides (simulation d'une base de données)
-        function initCodesValides() {
-            if (!localStorage.getItem('codesValides')) {
-                localStorage.setItem('codesValides', JSON.stringify([]));
-            }
-        }
-        initCodesValides();
-
         // Récupérer ou générer le code unique du joueur
         let monCode = localStorage.getItem('monCodeAmi');
         if (!monCode) {
             // Générer un code aléatoire à 3 chiffres (100-999)
             monCode = Math.floor(100 + Math.random() * 900).toString();
             localStorage.setItem('monCodeAmi', monCode);
-            
-            // Ajouter mon code à la liste des codes valides
-            let codesValides = JSON.parse(localStorage.getItem('codesValides')) || [];
-            if (!codesValides.includes(monCode)) {
-                codesValides.push(monCode);
-                localStorage.setItem('codesValides', JSON.stringify(codesValides));
-            }
         }
 
         // Afficher le code
@@ -249,10 +234,10 @@
                     return;
                 }
                 
-                // Vérifier si le code existe
-                const codesValides = JSON.parse(localStorage.getItem('codesValides')) || [];
-                if (!codesValides.includes(code)) {
-                    alert('❌ Ce code n\'existe pas ! Veuillez entrer un code valide.');
+                // Vérifier que le code n'est pas déjà dans la liste d'amis
+                const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+                if (amis.find(ami => ami.code === code)) {
+                    alert('❌ Cet ami est déjà dans votre liste !');
                     return;
                 }
                 
