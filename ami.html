@@ -77,8 +77,6 @@
         <span>🔔 Nouvelles invitations !</span>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    
     <!-- Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
@@ -105,75 +103,127 @@
         window.firebaseSet = set;
         window.firebasePush = push;
         window.firebaseOnValue = onValue;
+        window.firebaseReady = true;
+        
+        console.log('✅ Firebase initialisé');
     </script>
     
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    
     <script>
-        // Récupérer ou générer le code unique du joueur
-        let monCode = localStorage.getItem('monCodeAmi');
-        if (!monCode) {
-            // Générer un code aléatoire à 3 chiffres (100-999)
-            monCode = Math.floor(100 + Math.random() * 900).toString();
-            localStorage.setItem('monCodeAmi', monCode);
-        }
-
-
-
-        // Récupérer le nom du joueur
-        const nomJoueur = localStorage.getItem('nomJoueur') || 'Joueur';
-
-        // Générer le QR Code
-        const qrcodeUrl = `${window.location.origin}${window.location.pathname}?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
-        
-        const qrcode = new QRCode(document.getElementById('qrcode-container'), {
-            text: qrcodeUrl,
-            width: 150,
-            height: 150,
-            colorDark: "#000000",
-            colorLight: "#ffffff",
-            correctLevel: QRCode.CorrectLevel.H
-        });
-
-        // Variable temporaire pour l'ami en attente
-        let amiEnAttente = null;
-
-        // Vérifier si on arrive avec un code (scan QR ou lien)
-        const urlParams = new URLSearchParams(window.location.search);
-        const codeRecu = urlParams.get('code');
-        const nomRecu = urlParams.get('nom');
-
-        if (codeRecu && nomRecu && codeRecu !== monCode) {
-            // Vérifier si déjà ami
-            const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
-            const dejaAmi = amis.find(ami => ami.code === codeRecu);
+        // Attendre que tout soit chargé
+        window.addEventListener('load', function() {
+            console.log('🔄 Page chargée, initialisation...');
             
-            if (dejaAmi) {
-                alert('Vous êtes déjà ami avec ' + nomRecu + ' ! 😊');
-                window.history.replaceState({}, document.title, window.location.pathname);
+            // Récupérer ou générer le code unique du joueur
+            let monCode = localStorage.getItem('monCodeAmi');
+            if (!monCode) {
+                // Générer un code aléatoire à 3 chiffres (100-999)
+                monCode = Math.floor(100 + Math.random() * 900).toString();
+                localStorage.setItem('monCodeAmi', monCode);
+                console.log('📝 Nouveau code généré:', monCode);
             } else {
-                // Attendre que Firebase soit prêt
-                setTimeout(() => {
-                    // Envoyer une demande d'ami via Firebase avec ID unique
-                    if (window.firebaseDB && window.firebaseRef && window.firebasePush && window.firebaseSet) {
-                        const uniqueId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-                        const demandeRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'demandes_ami/' + codeRecu));
-                        window.firebaseSet(demandeRef, {
-                            de: nomJoueur,
-                            code: monCode,
-                            timestamp: Date.now(),
-                            uniqueId: uniqueId
-                        });
-                    }
+                console.log('📝 Code existant:', monCode);
+            }
+
+            // Récupérer le nom du joueur
+            const nomJoueur = localStorage.getItem('nomJoueur') || 'Joueur';
+            console.log('👤 Nom du joueur:', nomJoueur);
+
+            // Attendre que QRCode soit disponible
+            function genererQRCode() {
+                if (typeof QRCode === 'undefined') {
+                    console.log('⏳ QRCode pas encore chargé, nouvelle tentative...');
+                    setTimeout(genererQRCode, 200);
+                    return;
+                }
                 
-                    // Demander si on veut renommer avant d'ajouter
-                    amiEnAttente = { nom: nomRecu, code: codeRecu };
-                    document.getElementById('nom-actuel-ami').textContent = nomRecu;
-                    document.getElementById('modal-renommer').style.display = 'flex';
+                console.log('✅ QRCode chargé, génération...');
+                const qrcodeUrl = `${window.location.origin}${window.location.pathname}?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
+                
+                try {
+                    const qrcodeContainer = document.getElementById('qrcode-container');
+                    qrcodeContainer.innerHTML = ''; // Nettoyer avant
                     
-                    // Nettoyer l'URL
+                    const qrcode = new QRCode(qrcodeContainer, {
+                        text: qrcodeUrl,
+                        width: 150,
+                        height: 150,
+                        colorDark: "#000000",
+                        colorLight: "#ffffff",
+                        correctLevel: QRCode.CorrectLevel.H
+                    });
+                    console.log('✅ QR Code généré avec succès');
+                } catch (error) {
+                    console.error('❌ Erreur génération QR:', error);
+                }
+            }
+            
+            genererQRCode();
+            
+            // Exposer les variables globalement
+            window.monCode = monCode;
+            window.nomJoueur = nomJoueur;
+
+            // Variable temporaire pour l'ami en attente
+            window.amiEnAttente = null;
+
+            // Vérifier si on arrive avec un code (scan QR ou lien)
+            const urlParams = new URLSearchParams(window.location.search);
+            const codeRecu = urlParams.get('code');
+            const nomRecu = urlParams.get('nom');
+
+            if (codeRecu && nomRecu && codeRecu !== monCode) {
+                console.log('📱 QR Code scanné:', codeRecu, nomRecu);
+                
+                // Vérifier si déjà ami
+                const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+                const dejaAmi = amis.find(ami => ami.code === codeRecu);
+                
+                if (dejaAmi) {
+                    console.log('⚠️ Déjà ami avec', nomRecu);
+                    alert('Vous êtes déjà ami avec ' + nomRecu + ' ! 😊');
                     window.history.replaceState({}, document.title, window.location.pathname);
-                }, 1500);
-            }, 1500);
-        }
+                } else {
+                    console.log('✅ Nouvel ami détecté, envoi demande...');
+                    
+                    // Attendre que Firebase soit prêt
+                    function envoyerDemandeFriend() {
+                        if (!window.firebaseReady) {
+                            console.log('⏳ Attente Firebase...');
+                            setTimeout(envoyerDemandeFriend, 300);
+                            return;
+                        }
+                        
+                        try {
+                            // Envoyer une demande d'ami via Firebase avec ID unique
+                            const uniqueId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                            const demandeRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'demandes_ami/' + codeRecu));
+                            window.firebaseSet(demandeRef, {
+                                de: nomJoueur,
+                                code: monCode,
+                                timestamp: Date.now(),
+                                uniqueId: uniqueId
+                            });
+                            console.log('✅ Demande Firebase envoyée');
+                        } catch (error) {
+                            console.error('❌ Erreur Firebase:', error);
+                        }
+                    
+                        // Demander si on veut renommer avant d'ajouter
+                        window.amiEnAttente = { nom: nomRecu, code: codeRecu };
+                        document.getElementById('nom-actuel-ami').textContent = nomRecu;
+                        document.getElementById('modal-renommer').style.display = 'flex';
+                        console.log('✅ Modal renommer affiché');
+                        
+                        // Nettoyer l'URL
+                        window.history.replaceState({}, document.title, window.location.pathname);
+                    }
+                    
+                    envoyerDemandeFriend();
+                }
+            }
+        });
 
         // Fonction pour envoyer une invitation
         function envoyerInvitation(codeDestinataire, expediteur, codeExpediteur) {
@@ -271,23 +321,25 @@
             localStorage.setItem('invitations_' + monCode, JSON.stringify(invitations));
             
             // Mettre à jour l'affichage de la notification
-            verifierInvitations();
-        }
-
-        // Refuser une invitation
-        function refuserInvitation(index) {
-            const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
-            invitations.splice(index, 1);
-            localStorage.setItem('invitations_' + monCode, JSON.stringify(invitations));
-            afficherInvitations();
-        }
-
-        // Fermer modal invitations
-        document.getElementById('modal-close-invitations').addEventListener('click', function() {
-            document.getElementById('modal-invitations').style.display = 'none';
+            veriwindow.amiEnAttente) {
+                console.log('✅ Ajout ami avec nom original');
+                ajouterAmi(window.amiEnAttente.nom, window.amiEnAttente.code);
+                document.getElementById('modal-renommer').style.display = 'none';
+                document.getElementById('input-nouveau-nom').value = '';
+                window.amiEnAttente = null;
+            }
         });
 
-        // Garder le nom original
+        // Renommer et ajouter
+        document.getElementById('btn-confirmer-nom').addEventListener('click', function() {
+            if (window.amiEnAttente) {
+                const nouveauNom = document.getElementById('input-nouveau-nom').value.trim();
+                const nomFinal = nouveauNom || window.amiEnAttente.nom;
+                console.log('✅ Ajout ami avec nouveau nom:', nomFinal);
+                ajouterAmi(nomFinal, window.amiEnAttente.code);
+                document.getElementById('modal-renommer').style.display = 'none';
+                document.getElementById('input-nouveau-nom').value = '';
+                window.r le nom original
         document.getElementById('btn-garder-nom').addEventListener('click', function() {
             if (amiEnAttente) {
                 ajouterAmi(amiEnAttente.nom, amiEnAttente.code);
@@ -492,7 +544,9 @@
         // Permettre d'appuyer sur Entrée pour renommer
         document.getElementById('input-nouveau-nom').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-                document.getElementById('btn-confirmer-nom').click();
+           
+        
+        console.log('✅ Tous les événements initialisés');     document.getElementById('btn-confirmer-nom').click();
             }
         });
     </script>
