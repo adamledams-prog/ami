@@ -76,8 +76,8 @@ menuBtns.forEach(btn => {
     btn.addEventListener('click', function() {
         if (this.textContent === 'Profil') {
             window.location.href = 'profil.html';
-        } else if (this.textContent === 'Fusil') {
-            window.location.href = 'carte.html';
+        } else if (this.textContent === 'Bonus') {
+            window.location.href = 'bonus.html';
         } else if (this.textContent === 'Ami') {
             window.location.href = 'ami.html';
         } else if (this.textContent === 'Quête') {

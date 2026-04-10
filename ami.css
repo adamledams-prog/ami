@@ -498,6 +498,47 @@
     transform: scale(1.05);
 }
 
+/* Bouton lancer partie */
+.btn-lancer-partie {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    padding: 18px 35px;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(0, 255, 0, 0.5);
+    transition: all 0.3s;
+    z-index: 10;
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 6px 20px rgba(0, 255, 0, 0.5);
+    }
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 8px 25px rgba(0, 255, 0, 0.7);
+    }
+}
+
+.btn-lancer-partie:hover {
+    background: linear-gradient(135deg, #00cc00, #009900);
+    transform: scale(1.1);
+    box-shadow: 0 8px 25px rgba(0, 255, 0, 0.7);
+    animation: none;
+}
+
+.btn-lancer-partie:active {
+    transform: scale(1.05);
+}
+
 /* Scrollbar personnalisée */
 .liste-amis::-webkit-scrollbar {
     width: 10px;
@@ -562,6 +603,13 @@
         left: 10px;
         padding: 8px 15px;
         font-size: 12px;
+    }
+
+    .btn-lancer-partie {
+        bottom: 10px;
+        right: 10px;
+        padding: 12px 25px;
+        font-size: 16px;
     }
 
     .liste-amis {

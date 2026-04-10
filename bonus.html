@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bonus - Battle Royale</title>
+    <link rel="stylesheet" href="stile.css">
+    <link rel="stylesheet" href="bonus.css">
+</head>
+<body>
+    <button class="btn-retour" onclick="window.location.href='index.html'">← Retour</button>
+
+    <div class="bonus-header">
+        <h1>🎁 Boutique Bonus</h1>
+        <div class="compteur-pieces-bonus">
+            🪙 <span id="pieces-bonus">0</span>
+        </div>
+    </div>
+
+    <div class="bonus-container">
+        <!-- Potions d'invisibilité -->
+        <div class="categorie">
+            <h2>👻 Potions d'Invisibilité</h2>
+            <div class="items-grid">
+                <div class="item-card">
+                    <div class="item-icon">👻</div>
+                    <div class="item-info">
+                        <h3>Invisibilité 3s</h3>
+                        <p>Durée : 3 secondes</p>
+                    </div>
+                    <div class="item-prix">🪙 30</div>
+                    <button class="btn-acheter" data-item="invi3" data-prix="30">Acheter</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-icon">👻</div>
+                    <div class="item-info">
+                        <h3>Invisibilité 5s</h3>
+                        <p>Durée : 5 secondes</p>
+                    </div>
+                    <div class="item-prix">🪙 50</div>
+                    <button class="btn-acheter" data-item="invi5" data-prix="50">Acheter</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-icon">👻</div>
+                    <div class="item-info">
+                        <h3>Invisibilité 7s</h3>
+                        <p>Durée : 7 secondes</p>
+                    </div>
+                    <div class="item-prix">🪙 70</div>
+                    <button class="btn-acheter" data-item="invi7" data-prix="70">Acheter</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Potions de vitesse -->
+        <div class="categorie">
+            <h2>⚡ Potions de Vitesse</h2>
+            <div class="items-grid">
+                <div class="item-card">
+                    <div class="item-icon">⚡</div>
+                    <div class="item-info">
+                        <h3>Vitesse 1.5x</h3>
+                        <p>3s - Vitesse x1.5</p>
+                    </div>
+                    <div class="item-prix">🪙 30</div>
+                    <button class="btn-acheter" data-item="vitesse1.5" data-prix="30">Acheter</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-icon">⚡</div>
+                    <div class="item-info">
+                        <h3>Vitesse 2x</h3>
+                        <p>3s - Vitesse x2</p>
+                    </div>
+                    <div class="item-prix">🪙 50</div>
+                    <button class="btn-acheter" data-item="vitesse2" data-prix="50">Acheter</button>
+                </div>
+
+                <div class="item-card">
+                    <div class="item-icon">⚡</div>
+                    <div class="item-info">
+                        <h3>Vitesse 2.5x</h3>
+                        <p>3s - Vitesse x2.5</p>
+                    </div>
+                    <div class="item-prix">🪙 100</div>
+                    <button class="btn-acheter" data-item="vitesse2.5" data-prix="100">Acheter</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Objets spéciaux -->
+        <div class="categorie">
+            <h2>🗺️ Objets Spéciaux</h2>
+            <div class="items-grid">
+                <div class="item-card">
+                    <div class="item-icon">🗺️</div>
+                    <div class="item-info">
+                        <h3>Découvreur de Carte</h3>
+                        <p>Révèle la carte complète</p>
+                    </div>
+                    <div class="item-prix">🪙 70</div>
+                    <button class="btn-acheter" data-item="carte" data-prix="70">Acheter</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de confirmation -->
+    <div class="modal" id="modal-achat" style="display: none;">
+        <div class="modal-content">
+            <h2>✅ Achat réussi !</h2>
+            <p id="message-achat"></p>
+            <button id="btn-ok-achat">OK</button>
+        </div>
+    </div>
+
+    <!-- Modal d'erreur -->
+    <div class="modal" id="modal-erreur" style="display: none;">
+        <div class="modal-content">
+            <h2>❌ Pièces insuffisantes</h2>
+            <p id="message-erreur"></p>
+            <button id="btn-ok-erreur">OK</button>
+        </div>
+    </div>
+
+    <script>
+        // Récupérer les pièces
+        let pieces = parseInt(localStorage.getItem('pieces')) || 0;
+        document.getElementById('pieces-bonus').textContent = pieces;
+
+        // Récupérer l'inventaire
+        let inventaire = JSON.parse(localStorage.getItem('inventaire')) || {};
+
+        // Fonction pour acheter un item
+        document.querySelectorAll('.btn-acheter').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const item = this.dataset.item;
+                const prix = parseInt(this.dataset.prix);
+                const nomItem = this.previousElementSibling.previousElementSibling.querySelector('h3').textContent;
+
+                if (pieces >= prix) {
+                    // Déduire les pièces
+                    pieces -= prix;
+                    localStorage.setItem('pieces', pieces.toString());
+                    document.getElementById('pieces-bonus').textContent = pieces;
+
+                    // Ajouter à l'inventaire
+                    if (!inventaire[item]) {
+                        inventaire[item] = 0;
+                    }
+                    inventaire[item]++;
+                    localStorage.setItem('inventaire', JSON.stringify(inventaire));
+
+                    // Afficher confirmation
+                    document.getElementById('message-achat').textContent = `Vous avez acheté : ${nomItem} !\nQuantité en inventaire : ${inventaire[item]}`;
+                    document.getElementById('modal-achat').style.display = 'flex';
+                } else {
+                    // Pas assez de pièces
+                    const manque = prix - pieces;
+                    document.getElementById('message-erreur').textContent = `Il vous manque ${manque} pièces pour acheter cet item.`;
+                    document.getElementById('modal-erreur').style.display = 'flex';
+                }
+            });
+        });
+
+        // Fermer modals
+        document.getElementById('btn-ok-achat').addEventListener('click', function() {
+            document.getElementById('modal-achat').style.display = 'none';
+        });
+
+        document.getElementById('btn-ok-erreur').addEventListener('click', function() {
+            document.getElementById('modal-erreur').style.display = 'none';
+        });
+    </script>
+</body>
+</html>

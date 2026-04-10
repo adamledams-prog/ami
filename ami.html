@@ -16,6 +16,11 @@
         <div id="qrcode-container"></div>
     </div>
 
+    <!-- Bouton lancer partie -->
+    <button class="btn-lancer-partie" id="btn-lancer-partie">
+        🎮 Lancer la partie
+    </button>
+
     <!-- Liste des amis -->
     <div class="liste-amis" id="liste-amis">
         <h2>Mes Amis</h2>
@@ -55,12 +60,50 @@
         </div>
     </div>
 
+    <!-- Modal notification de partie -->
+    <div class="modal" id="modal-notification-partie" style="display: none;">
+        <div class="modal-content">
+            <h2>🎮 Invitation à jouer !</h2>
+            <p id="message-partie"></p>
+            <button id="btn-ok-partie">Rejoindre la partie</button>
+        </div>
+    </div>
+
     <!-- Notification d'invitations -->
     <div class="notification-invitations" id="notification-invitations" style="display: none;">
         <span>🔔 Nouvelles invitations !</span>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+        // Configuration Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyBavSNizC3V3WcyN3snmSlzUMX5s8DYbJM",
+            authDomain: "ami-combat.firebaseapp.com",
+            databaseURL: "https://ami-combat-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ami-combat",
+            storageBucket: "ami-combat.firebasestorage.app",
+            messagingSenderId: "902577363403",
+            appId: "1:902577363403:web:70d778cc7dc3e1c519fe4e"
+        };
+
+        // Initialiser Firebase
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        // Rendre disponible globalement
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+        window.firebasePush = push;
+        window.firebaseOnValue = onValue;
+    </script>
+    
     <script>
         // Récupérer ou générer le code unique du joueur
         let monCode = localStorage.getItem('monCodeAmi');
@@ -96,27 +139,26 @@
         const nomRecu = urlParams.get('nom');
 
         if (codeRecu && nomRecu && codeRecu !== monCode) {
-            // Envoyer une invitation mutuelle
+            // Attendre que Firebase soit prêt
             setTimeout(() => {
-                // Envoyer une invitation à l'autre personne
-                envoyerInvitation(codeRecu, nomJoueur, monCode);
+                // Envoyer une demande d'ami via Firebase
+                if (window.firebaseDB && window.firebaseRef && window.firebasePush && window.firebaseSet) {
+                    const demandeRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'demandes_ami/' + codeRecu));
+                    window.firebaseSet(demandeRef, {
+                        de: nomJoueur,
+                        code: monCode,
+                        timestamp: Date.now()
+                    });
+                }
                 
-                // Envoyer aussi une invitation à nous-mêmes (depuis l'autre personne)
-                envoyerInvitation(monCode, nomRecu, codeRecu);
-                
-                // Afficher une notification
-                document.getElementById('nom-destinataire').textContent = nomRecu;
-                document.getElementById('message-confirmation').textContent = `Demande d'ami envoyée à ${nomRecu}. Vérifiez vos invitations !`;
-                document.getElementById('modal-confirmation').style.display = 'flex';
+                // Demander si on veut renommer avant d'ajouter
+                amiEnAttente = { nom: nomRecu, code: codeRecu };
+                document.getElementById('nom-actuel-ami').textContent = nomRecu;
+                document.getElementById('modal-renommer').style.display = 'flex';
                 
                 // Nettoyer l'URL
                 window.history.replaceState({}, document.title, window.location.pathname);
-                
-                // Vérifier les invitations pour afficher la notification
-                setTimeout(() => {
-                    verifierInvitations();
-                }, 1000);
-            }, 500);
+            }, 1500);
         }
 
         // Fonction pour envoyer une invitation
@@ -308,6 +350,112 @@
             if (confirm('Voulez-vous vraiment supprimer cet ami ?')) {
                 let amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
                 amis.splice(index, 1);
+
+        // ==== SYSTÈME DE NOTIFICATIONS FIREBASE ====
+        
+        // Écouter les demandes d'ami en temps réel
+        setTimeout(() => {
+            if (window.firebaseDB && window.firebaseRef && window.firebaseOnValue) {
+                const demandesRef = window.firebaseRef(window.firebaseDB, 'demandes_ami/' + monCode);
+                
+                window.firebaseOnValue(demandesRef, (snapshot) => {
+                    const demandes = snapshot.val();
+                    if (demandes) {
+                        // Récupérer la dernière demande
+                        const keys = Object.keys(demandes);
+                        const lastKey = keys[keys.length - 1];
+                        const lastDemande = demandes[lastKey];
+                        
+                        // Vérifier si on a déjà vu cette demande
+                        const lastSeenDemande = localStorage.getItem('lastSeenDemande');
+                        if (lastKey !== lastSeenDemande && lastDemande.code !== monCode) {
+                            // Nouvelle demande d'ami !
+                            localStorage.setItem('lastSeenDemande', lastKey);
+                            
+                            // Vérifier si pas déjà ami
+                            const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+                            const dejaAmi = amis.find(ami => ami.code === lastDemande.code);
+                            
+                            if (!dejaAmi) {
+                                // Ajouter automatiquement comme ami
+                                amis.push({ nom: lastDemande.de, code: lastDemande.code });
+                                localStorage.setItem('mesAmis', JSON.stringify(amis));
+                                afficherAmis();
+                                
+                                // Notification
+                                alert(`✅ Vous êtes maintenant ami avec ${lastDemande.de} ! 🎉`);
+                            }
+                        }
+                    }
+                });
+                
+                // Écouter les notifications de partie
+                const notificationsRef = window.firebaseRef(window.firebaseDB, 'notifications/' + monCode);
+                
+                window.firebaseOnValue(notificationsRef, (snapshot) => {
+                    const notifications = snapshot.val();
+                    if (notifications) {
+                        // Récupérer la dernière notification
+                        const keys = Object.keys(notifications);
+                        const lastKey = keys[keys.length - 1];
+                        const lastNotif = notifications[lastKey];
+                        
+                        // Vérifier si on a déjà vu cette notification
+                        const lastSeenNotif = localStorage.getItem('lastSeenNotification');
+                        if (lastKey !== lastSeenNotif) {
+                            // Nouvelle notification !
+                            localStorage.setItem('lastSeenNotification', lastKey);
+                            afficherNotificationPartie(lastNotif.de, lastNotif.message);
+                        }
+                    }
+                });
+            }
+        }, 1000);
+
+        // Bouton lancer la partie
+        document.getElementById('btn-lancer-partie').addEventListener('click', function() {
+            const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+            
+            if (amis.length === 0) {
+                alert('Vous n\'avez pas encore d\'amis !\nAjoutez des amis pour lancer une partie.');
+                return;
+            }
+
+            // Envoyer une notification à tous les amis
+            if (window.firebaseDB && window.firebaseRef && window.firebasePush && window.firebaseSet) {
+                amis.forEach(ami => {
+                    const notificationRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'notifications/' + ami.code));
+                    window.firebaseSet(notificationRef, {
+                        de: nomJoueur,
+                        message: 'La partie va commencer !',
+                        timestamp: Date.now()
+                    });
+                });
+
+                alert(`🎮 Invitation envoyée à ${amis.length} ami(s) !\n\nVos amis vont recevoir une notification.`);
+            } else {
+                alert('Erreur : Firebase non initialisé. Rechargez la page.');
+            }
+        });
+
+        // Afficher la notification de partie
+        function afficherNotificationPartie(nomAmi, message) {
+            document.getElementById('message-partie').textContent = `${nomAmi} vous invite !\n\n"${message}"`;
+            document.getElementById('modal-notification-partie').style.display = 'flex';
+            
+            // Son de notification (optionnel)
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZii0GHW7A7+OZRA0PVqzn7KdbFAg+l93zvmccBSaB0PLaiiwGHW/A7+OYQw0QVqzn7KdbFApBnt3ywWcbBS6Bz/Ljiz8GGnTD7+aUQQ0NVqzn67BbFAk+l93zvmcdBSaB0PLaiSwGH2/A7+OYRg0NWKzn66lbFAk+mN7zvmkbBSmB0PLbiisFH2/C7uOXRQ0PWK7n66lbFQo+l93z');
+                audio.play().catch(() => {});
+            } catch(e) {}
+        }
+
+        // Bouton OK notification
+        document.getElementById('btn-ok-partie').addEventListener('click', function() {
+            document.getElementById('modal-notification-partie').style.display = 'none';
+            // Rediriger vers la page de jeu (à créer plus tard)
+            // window.location.href = 'game.html';
+        });
                 localStorage.setItem('mesAmis', JSON.stringify(amis));
                 afficherAmis();
             }
