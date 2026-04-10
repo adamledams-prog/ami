@@ -142,25 +142,36 @@
         const nomRecu = urlParams.get('nom');
 
         if (codeRecu && nomRecu && codeRecu !== monCode) {
-            // Attendre que Firebase soit prêt
-            setTimeout(() => {
-                // Envoyer une demande d'ami via Firebase
-                if (window.firebaseDB && window.firebaseRef && window.firebasePush && window.firebaseSet) {
-                    const demandeRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'demandes_ami/' + codeRecu));
-                    window.firebaseSet(demandeRef, {
-                        de: nomJoueur,
-                        code: monCode,
-                        timestamp: Date.now()
-                    });
-                }
-                
-                // Demander si on veut renommer avant d'ajouter
-                amiEnAttente = { nom: nomRecu, code: codeRecu };
-                document.getElementById('nom-actuel-ami').textContent = nomRecu;
-                document.getElementById('modal-renommer').style.display = 'flex';
-                
-                // Nettoyer l'URL
+            // Vérifier si déjà ami
+            const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+            const dejaAmi = amis.find(ami => ami.code === codeRecu);
+            
+            if (dejaAmi) {
+                alert('Vous êtes déjà ami avec ' + nomRecu + ' ! 😊');
                 window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                // Attendre que Firebase soit prêt
+                setTimeout(() => {
+                    // Envoyer une demande d'ami via Firebase avec ID unique
+                    if (window.firebaseDB && window.firebaseRef && window.firebasePush && window.firebaseSet) {
+                        const uniqueId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                        const demandeRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'demandes_ami/' + codeRecu));
+                        window.firebaseSet(demandeRef, {
+                            de: nomJoueur,
+                            code: monCode,
+                            timestamp: Date.now(),
+                            uniqueId: uniqueId
+                        });
+                    }
+                
+                    // Demander si on veut renommer avant d'ajouter
+                    amiEnAttente = { nom: nomRecu, code: codeRecu };
+                    document.getElementById('nom-actuel-ami').textContent = nomRecu;
+                    document.getElementById('modal-renommer').style.display = 'flex';
+                    
+                    // Nettoyer l'URL
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }, 1500);
             }, 1500);
         }
 
@@ -308,17 +319,17 @@
             let amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
             
             // Vérifier si l'ami existe déjà
-            if (!amis.find(ami => ami.code === code)) {
+            const dejaAmi = amis.find(ami => ami.code === code);
+            if (!dejaAmi) {
                 amis.push({ nom: nom, code: code });
                 localStorage.setItem('mesAmis', JSON.stringify(amis));
                 afficherAmis();
                 
-                // Confirmation
-                document.getElementById('nessage-confirmation').textContent = `${nom} a été ajouté à vos amis ! 🎉`;
+                // Confirmation avec le bon ID (erreur de typo corrigée)
+                document.getElementById('message-confirmation').textContent = `${nom} a été ajouté à vos amis ! 🎉`;
                 document.getElementById('modal-confirmation').style.display = 'flex';
             } else {
-                alert('Vous êtes déjà ami avec cette personne !')
-                document.getElementById('modal-confirmation').style.display = 'flex';
+                alert('Vous êtes déjà ami avec cette personne !');
             }
         }
 
@@ -352,7 +363,12 @@
         function supprimerAmi(index) {
             if (confirm('Voulez-vous vraiment supprimer cet ami ?')) {
                 let amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+                const amiSupprime = amis[index];
                 amis.splice(index, 1);
+                
+                // Nettoyer les traces Firebase pour permettre de réinviter
+                localStorage.removeItem('lastSeenDemande_' + amiSupprime.code);
+                localStorage.removeItem('lastSeenNotification_' + amiSupprime.code);
 
         // ==== SYSTÈME DE NOTIFICATIONS FIREBASE ====
         
@@ -369,11 +385,13 @@
                         const lastKey = keys[keys.length - 1];
                         const lastDemande = demandes[lastKey];
                         
-                        // Vérifier si on a déjà vu cette demande
-                        const lastSeenDemande = localStorage.getItem('lastSeenDemande');
-                        if (lastKey !== lastSeenDemande && lastDemande.code !== monCode) {
+                        // Vérifier si on a déjà vu cette demande avec ID unique
+                        const uniqueKey = lastDemande.uniqueId || lastKey;
+                        const lastSeenDemande = localStorage.getItem('lastSeenDemande_all');
+                        
+                        if (uniqueKey !== lastSeenDemande && lastDemande.code !== monCode) {
                             // Nouvelle demande d'ami !
-                            localStorage.setItem('lastSeenDemande', lastKey);
+                            localStorage.setItem('lastSeenDemande_all', uniqueKey);
                             
                             // Vérifier si pas déjà ami
                             const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
