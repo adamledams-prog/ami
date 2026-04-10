@@ -65,7 +65,10 @@
         <div class="modal-content">
             <h2>🎮 Invitation à jouer !</h2>
             <p id="message-partie"></p>
-            <button id="btn-ok-partie">Rejoindre la partie</button>
+            <div style="display: flex; gap: 15px; margin-top: 20px;">
+                <button id="btn-accepter-partie" style="flex: 1; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 10px; background: linear-gradient(135deg, #00cc00, #009900); color: white; cursor: pointer;">✓ Accepter</button>
+                <button id="btn-refuser-partie" style="flex: 1; padding: 15px; font-size: 16px; font-weight: bold; border: none; border-radius: 10px; background: linear-gradient(135deg, #ff4444, #cc0000); color: white; cursor: pointer;">✗ Refuser</button>
+            </div>
         </div>
     </div>
 
@@ -450,11 +453,15 @@
             } catch(e) {}
         }
 
-        // Bouton OK notification
-        document.getElementById('btn-ok-partie').addEventListener('click', function() {
+        // Bouton accepter partie
+        document.getElementById('btn-accepter-partie').addEventListener('click', function() {
             document.getElementById('modal-notification-partie').style.display = 'none';
-            // Rediriger vers la page de jeu (à créer plus tard)
-            // window.location.href = 'game.html';
+            window.location.href = 'game.html';
+        });
+
+        // Bouton refuser partie
+        document.getElementById('btn-refuser-partie').addEventListener('click', function() {
+            document.getElementById('modal-notification-partie').style.display = 'none';
         });
                 localStorage.setItem('mesAmis', JSON.stringify(amis));
                 afficherAmis();

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Battle Royale - Jeu</title>
+    <link rel="stylesheet" href="game.css">
+</head>
+<body>
+    <!-- Écran de rotation pour mobile -->
+    <div class="rotation-screen" id="rotation-screen">
+        <div class="rotation-message">
+            <div class="phone-icon">📱</div>
+            <p>Tournez votre appareil en mode paysage</p>
+            <div class="arrow">↻</div>
+        </div>
+    </div>
+
+    <!-- Écran de démarrage -->
+    <div class="start-screen" id="start-screen">
+        <h1>BATTLE ROYALE</h1>
+        <div class="role-reveal" id="role-reveal">
+            <div class="role-text">Vous êtes...</div>
+            <div class="role-name" id="role-name">INNOCENT</div>
+            <div class="countdown" id="countdown">2</div>
+        </div>
+    </div>
+
+    <!-- Canvas du jeu -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Joystick gauche (déplacement) -->
+    <div class="joystick-container" id="joystick-left">
+        <div class="joystick-base">
+            <div class="joystick-stick" id="stick-left"></div>
+        </div>
+    </div>
+
+    <!-- Bouton d'attaque (pour le meurtrier) -->
+    <div class="attack-button" id="attack-button" style="display: none;">
+        <span>🗡️</span>
+    </div>
+
+    <!-- HUD -->
+    <div class="hud">
+        <div class="hud-top">
+            <div class="player-name" id="player-name">Joueur</div>
+            <div class="players-alive" id="players-alive">👥 0/0</div>
+        </div>
+    </div>
+
+    <!-- Minimap -->
+    <canvas class="minimap" id="minimap"></canvas>
+
+    <!-- Écran de fin de partie -->
+    <div class="game-over-screen" id="game-over-screen">
+        <div class="game-over-content">
+            <h1 id="game-over-title">VICTOIRE</h1>
+            <p id="game-over-message">Vous avez survécu !</p>
+            <button class="btn-return" onclick="window.location.href='index.html'">← Retour au menu</button>
+        </div>
+    </div>
+
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBavSNizC3V3WcyN3snmSlzUMX5s8DYbJM",
+            authDomain: "ami-combat.firebaseapp.com",
+            databaseURL: "https://ami-combat-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ami-combat",
+            storageBucket: "ami-combat.firebasestorage.app",
+            messagingSenderId: "902577363403",
+            appId: "1:902577363403:web:70d778cc7dc3e1c519fe4e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+        window.firebaseUpdate = update;
+        window.firebaseOnValue = onValue;
+    </script>
+
+    <script src="game.js"></script>
+</body>
+</html>
