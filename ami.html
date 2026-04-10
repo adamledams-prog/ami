@@ -77,6 +77,8 @@
         <span>🔔 Nouvelles invitations !</span>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    
     <!-- Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
@@ -104,48 +106,32 @@
         window.firebasePush = push;
         window.firebaseOnValue = onValue;
         window.firebaseReady = true;
-        
-        console.log('✅ Firebase initialisé');
     </script>
     
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
-    
     <script>
-        // Attendre que tout soit chargé
-        window.addEventListener('load', function() {
-            console.log('🔄 Page chargée, initialisation...');
-            
+        // Attendre que la page soit complètement chargée
+        function initialiser() {
             // Récupérer ou générer le code unique du joueur
             let monCode = localStorage.getItem('monCodeAmi');
             if (!monCode) {
                 // Générer un code aléatoire à 3 chiffres (100-999)
                 monCode = Math.floor(100 + Math.random() * 900).toString();
                 localStorage.setItem('monCodeAmi', monCode);
-                console.log('📝 Nouveau code généré:', monCode);
-            } else {
-                console.log('📝 Code existant:', monCode);
             }
+
+            // Rendre disponible globalement
+            window.monCode = monCode;
 
             // Récupérer le nom du joueur
             const nomJoueur = localStorage.getItem('nomJoueur') || 'Joueur';
-            console.log('👤 Nom du joueur:', nomJoueur);
+            window.nomJoueur = nomJoueur;
 
-            // Attendre que QRCode soit disponible
-            function genererQRCode() {
-                if (typeof QRCode === 'undefined') {
-                    console.log('⏳ QRCode pas encore chargé, nouvelle tentative...');
-                    setTimeout(genererQRCode, 200);
-                    return;
-                }
-                
-                console.log('✅ QRCode chargé, génération...');
-                const qrcodeUrl = `${window.location.origin}${window.location.pathname}?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
-                
-                try {
-                    const qrcodeContainer = document.getElementById('qrcode-container');
-                    qrcodeContainer.innerHTML = ''; // Nettoyer avant
+            // Générer le QR Code (attendre que QRCode soit chargé)
+            setTimeout(function() {
+                if (typeof QRCode !== 'undefined') {
+                    const qrcodeUrl = `${window.location.origin}${window.location.pathname}?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
                     
-                    const qrcode = new QRCode(qrcodeContainer, {
+                    const qrcode = new QRCode(document.getElementById('qrcode-container'), {
                         text: qrcodeUrl,
                         width: 150,
                         height: 150,
@@ -153,17 +139,11 @@
                         colorLight: "#ffffff",
                         correctLevel: QRCode.CorrectLevel.H
                     });
-                    console.log('✅ QR Code généré avec succès');
-                } catch (error) {
-                    console.error('❌ Erreur génération QR:', error);
+                } else {
+                    console.error('QRCode non chargé');
                 }
-            }
-            
-            genererQRCode();
-            
-            // Exposer les variables globalement
-            window.monCode = monCode;
-            window.nomJoueur = nomJoueur;
+            }, 100);
+            }, 100);
 
             // Variable temporaire pour l'ami en attente
             window.amiEnAttente = null;
@@ -174,29 +154,18 @@
             const nomRecu = urlParams.get('nom');
 
             if (codeRecu && nomRecu && codeRecu !== monCode) {
-                console.log('📱 QR Code scanné:', codeRecu, nomRecu);
-                
                 // Vérifier si déjà ami
                 const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
                 const dejaAmi = amis.find(ami => ami.code === codeRecu);
                 
                 if (dejaAmi) {
-                    console.log('⚠️ Déjà ami avec', nomRecu);
                     alert('Vous êtes déjà ami avec ' + nomRecu + ' ! 😊');
                     window.history.replaceState({}, document.title, window.location.pathname);
                 } else {
-                    console.log('✅ Nouvel ami détecté, envoi demande...');
-                    
                     // Attendre que Firebase soit prêt
-                    function envoyerDemandeFriend() {
-                        if (!window.firebaseReady) {
-                            console.log('⏳ Attente Firebase...');
-                            setTimeout(envoyerDemandeFriend, 300);
-                            return;
-                        }
-                        
-                        try {
-                            // Envoyer une demande d'ami via Firebase avec ID unique
+                    setTimeout(() => {
+                        // Envoyer une demande d'ami via Firebase avec ID unique
+                        if (window.firebaseReady && window.firebaseDB) {
                             const uniqueId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
                             const demandeRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'demandes_ami/' + codeRecu));
                             window.firebaseSet(demandeRef, {
@@ -205,25 +174,26 @@
                                 timestamp: Date.now(),
                                 uniqueId: uniqueId
                             });
-                            console.log('✅ Demande Firebase envoyée');
-                        } catch (error) {
-                            console.error('❌ Erreur Firebase:', error);
                         }
                     
                         // Demander si on veut renommer avant d'ajouter
                         window.amiEnAttente = { nom: nomRecu, code: codeRecu };
                         document.getElementById('nom-actuel-ami').textContent = nomRecu;
                         document.getElementById('modal-renommer').style.display = 'flex';
-                        console.log('✅ Modal renommer affiché');
                         
                         // Nettoyer l'URL
                         window.history.replaceState({}, document.title, window.location.pathname);
-                    }
-                    
-                    envoyerDemandeFriend();
+                    }, 1500);
                 }
             }
-        });
+        }
+        
+        //  Appeler l'initialisation quand la page est chargée
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialiser);
+        } else {
+            initialiser();
+        }
 
         // Fonction pour envoyer une invitation
         function envoyerInvitation(codeDestinataire, expediteur, codeExpediteur) {
@@ -238,7 +208,7 @@
 
         // Vérifier les invitations au chargement
         function verifierInvitations() {
-            const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
+            const invitations = JSON.parse(localStorage.getItem('invitations_' + window.monCode)) || [];
             const notifElement = document.getElementById('notification-invitations');
             
             if (invitations.length > 0) {
@@ -266,7 +236,7 @@
 
         // Afficher les invitations
         function afficherInvitations() {
-            const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
+            const invitations = JSON.parse(localStorage.getItem('invitations_' + window.monCode)) || [];
             const liste = document.getElementById('liste-invitations');
             
             if (invitations.length === 0) {
@@ -294,7 +264,7 @@
 
         // Accepter une invitation
         function accepterInvitation(index) {
-            const invitations = JSON.parse(localStorage.getItem('invitations_' + monCode)) || [];
+            const invitations = JSON.parse(localStorage.getItem('invitations_' + window.monCode)) || [];
             const invitation = invitations[index];
             
             // Vérifier si on n'est pas déjà ami
@@ -304,13 +274,13 @@
             if (dejaAmi) {
                 alert('Vous êtes déjà ami avec cette personne !');
                 invitations.splice(index, 1);
-                localStorage.setItem('invitations_' + monCode, JSON.stringify(invitations));
+                localStorage.setItem('invitations_' + window.monCode, JSON.stringify(invitations));
                 afficherInvitations();
                 return;
             }
             
             // Demander si on veut renommer
-            amiEnAttente = { nom: invitation.de, code: invitation.code };
+            window.amiEnAttente = { nom: invitation.de, code: invitation.code };
             document.getElementById('nom-actuel-ami').textContent = invitation.de;
             document.getElementById('modal-invitations').style.display = 'none';
             document.getElementById('modal-renommer').style.display = 'flex';
@@ -318,11 +288,29 @@
             
             // Retirer l'invitation
             invitations.splice(index, 1);
-            localStorage.setItem('invitations_' + monCode, JSON.stringify(invitations));
+            localStorage.setItem('invitations_' + window.monCode, JSON.stringify(invitations));
+            localStorage.setItem('invitations_' + window.monCode, JSON.stringify(invitations));
             
             // Mettre à jour l'affichage de la notification
-            veriwindow.amiEnAttente) {
-                console.log('✅ Ajout ami avec nom original');
+            verifierInvitations();
+        }
+
+        // Refuser une invitation
+        function refuserInvitation(index) {
+            const invitations = JSON.parse(localStorage.getItem('invitations_' + window.monCode)) || [];
+            invitations.splice(index, 1);
+            localStorage.setItem('invitations_' + window.monCode, JSON.stringify(invitations));
+            afficherInvitations();
+        }
+
+        // Fermer modal invitations
+        document.getElementById('modal-close-invitations').addEventListener('click', function() {
+            document.getElementById('modal-invitations').style.display = 'none';
+        });
+
+        // Garder le nom original
+        document.getElementById('btn-garder-nom').addEventListener('click', function() {
+            if (window.amiEnAttente) {
                 ajouterAmi(window.amiEnAttente.nom, window.amiEnAttente.code);
                 document.getElementById('modal-renommer').style.display = 'none';
                 document.getElementById('input-nouveau-nom').value = '';
@@ -335,29 +323,10 @@
             if (window.amiEnAttente) {
                 const nouveauNom = document.getElementById('input-nouveau-nom').value.trim();
                 const nomFinal = nouveauNom || window.amiEnAttente.nom;
-                console.log('✅ Ajout ami avec nouveau nom:', nomFinal);
                 ajouterAmi(nomFinal, window.amiEnAttente.code);
                 document.getElementById('modal-renommer').style.display = 'none';
                 document.getElementById('input-nouveau-nom').value = '';
-                window.r le nom original
-        document.getElementById('btn-garder-nom').addEventListener('click', function() {
-            if (amiEnAttente) {
-                ajouterAmi(amiEnAttente.nom, amiEnAttente.code);
-                document.getElementById('modal-renommer').style.display = 'none';
-                document.getElementById('input-nouveau-nom').value = '';
-                amiEnAttente = null;
-            }
-        });
-
-        // Renommer et ajouter
-        document.getElementById('btn-confirmer-nom').addEventListener('click', function() {
-            if (amiEnAttente) {
-                const nouveauNom = document.getElementById('input-nouveau-nom').value.trim();
-                const nomFinal = nouveauNom || amiEnAttente.nom;
-                ajouterAmi(nomFinal, amiEnAttente.code);
-                document.getElementById('modal-renommer').style.display = 'none';
-                document.getElementById('input-nouveau-nom').value = '';
-                amiEnAttente = null;
+                window.amiEnAttente = null;
             }
         });
 
@@ -421,13 +390,18 @@
                 // Nettoyer les traces Firebase pour permettre de réinviter
                 localStorage.removeItem('lastSeenDemande_' + amiSupprime.code);
                 localStorage.removeItem('lastSeenNotification_' + amiSupprime.code);
+                
+                localStorage.setItem('mesAmis', JSON.stringify(amis));
+                afficherAmis();
+            }
+        }
 
         // ==== SYSTÈME DE NOTIFICATIONS FIREBASE ====
         
         // Écouter les demandes d'ami en temps réel
         setTimeout(() => {
             if (window.firebaseDB && window.firebaseRef && window.firebaseOnValue) {
-                const demandesRef = window.firebaseRef(window.firebaseDB, 'demandes_ami/' + monCode);
+                const demandesRef = window.firebaseRef(window.firebaseDB, 'demandes_ami/' + window.monCode);
                 
                 window.firebaseOnValue(demandesRef, (snapshot) => {
                     const demandes = snapshot.val();
@@ -441,7 +415,7 @@
                         const uniqueKey = lastDemande.uniqueId || lastKey;
                         const lastSeenDemande = localStorage.getItem('lastSeenDemande_all');
                         
-                        if (uniqueKey !== lastSeenDemande && lastDemande.code !== monCode) {
+                        if (uniqueKey !== lastSeenDemande && lastDemande.code !== window.monCode) {
                             // Nouvelle demande d'ami !
                             localStorage.setItem('lastSeenDemande_all', uniqueKey);
                             
@@ -463,7 +437,7 @@
                 });
                 
                 // Écouter les notifications de partie
-                const notificationsRef = window.firebaseRef(window.firebaseDB, 'notifications/' + monCode);
+                const notificationsRef = window.firebaseRef(window.firebaseDB, 'notifications/' + window.monCode);
                 
                 window.firebaseOnValue(notificationsRef, (snapshot) => {
                     const notifications = snapshot.val();
@@ -499,7 +473,7 @@
                 amis.forEach(ami => {
                     const notificationRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'notifications/' + ami.code));
                     window.firebaseSet(notificationRef, {
-                        de: nomJoueur,
+                        de: window.nomJoueur,
                         message: 'La partie va commencer !',
                         timestamp: Date.now()
                     });
@@ -544,9 +518,7 @@
         // Permettre d'appuyer sur Entrée pour renommer
         document.getElementById('input-nouveau-nom').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
-           
-        
-        console.log('✅ Tous les événements initialisés');     document.getElementById('btn-confirmer-nom').click();
+                document.getElementById('btn-confirmer-nom').click();
             }
         });
     </script>
