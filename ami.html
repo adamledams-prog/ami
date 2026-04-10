@@ -77,7 +77,25 @@
         <span>🔔 Nouvelles invitations !</span>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    <!-- Charger QRCode avec CDN alternatif en cas d'échec -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" 
+            onerror="chargerQRCodeAlternatif()"></script>
+    <script>
+        // Fonction pour charger un CDN alternatif si le premier échoue
+        function chargerQRCodeAlternatif() {
+            console.log('⚠️ CDN principal QRCode échoué, chargement alternatif...');
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+            script.onload = function() {
+                console.log('✅ QRCode chargé depuis CDN alternatif');
+            };
+            script.onerror = function() {
+                console.error('❌ Impossible de charger QRCode depuis aucun CDN');
+                alert('⚠️ Erreur: Impossible de charger le générateur de QR Code.\nVérifiez votre connexion Internet.');
+            };
+            document.head.appendChild(script);
+        }
+    </script>
     
     <!-- Firebase -->
     <script type="module">
@@ -127,22 +145,40 @@
             window.nomJoueur = nomJoueur;
 
             // Générer le QR Code (attendre que QRCode soit chargé)
-            setTimeout(function() {
+            function genererQRCode() {
+                console.log('🔍 Tentative de génération du QR Code...');
+                const container = document.getElementById('qrcode-container');
+                
                 if (typeof QRCode !== 'undefined') {
-                    const qrcodeUrl = `${window.location.origin}${window.location.pathname}?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
-                    
-                    const qrcode = new QRCode(document.getElementById('qrcode-container'), {
-                        text: qrcodeUrl,
-                        width: 150,
-                        height: 150,
-                        colorDark: "#000000",
-                        colorLight: "#ffffff",
-                        correctLevel: QRCode.CorrectLevel.H
-                    });
+                    try {
+                        // Nettoyer le conteneur au cas où
+                        container.innerHTML = '';
+                        
+                        const qrcodeUrl = `${window.location.origin}${window.location.pathname}?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
+                        console.log('📱 URL du QR Code:', qrcodeUrl);
+                        
+                        const qrcode = new QRCode(container, {
+                            text: qrcodeUrl,
+                            width: 150,
+                            height: 150,
+                            colorDark: "#000000",
+                            colorLight: "#ffffff",
+                            correctLevel: QRCode.CorrectLevel.H
+                        });
+                        
+                        console.log('✅ QR Code généré avec succès!');
+                    } catch (error) {
+                        console.error('❌ Erreur lors de la génération du QR Code:', error);
+                        container.innerHTML = '<p style="color: red; font-size: 12px;">Erreur QR Code</p>';
+                    }
                 } else {
-                    console.error('QRCode non chargé');
+                    console.warn('⏳ QRCode pas encore chargé, nouvelle tentative dans 500ms...');
+                    setTimeout(genererQRCode, 500);
                 }
-            }, 100);
+            }
+            
+            // Démarrer la génération après un court délai
+            setTimeout(genererQRCode, 200);
 
             // Variable temporaire pour l'ami en attente
             window.amiEnAttente = null;

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test QR Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 50px;
+            background: #f0f0f0;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        #qrcode {
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 10px;
+        }
+        .info {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            border-left: 4px solid #4caf50;
+        }
+        .error {
+            margin-top: 20px;
+            padding: 15px;
+            background: #ffebee;
+            border-radius: 5px;
+            border-left: 4px solid #f44336;
+        }
+        button {
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background: #1976d2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Test QR Code</h1>
+        
+        <div id="status">⏳ Chargement de la bibliothèque QRCode...</div>
+        
+        <div id="qrcode"></div>
+        
+        <button onclick="regenererQR()">🔄 Régénérer</button>
+        
+        <div id="info" style="margin-top: 20px;"></div>
+    </div>
+
+    <!-- Test avec plusieurs CDN possibles -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js" 
+            onerror="chargerAlternatif()"></script>
+    
+    <script>
+        let qrcodeInstance = null;
+        let cdnCharge = false;
+        
+        // Fonction pour charger un CDN alternatif si le premier échoue
+        function chargerAlternatif() {
+            console.log('❌ Premier CDN échoué, essai alternatif...');
+            document.getElementById('status').innerHTML = 
+                '<div class="error">❌ CDN principal échoué, chargement alternatif...</div>';
+            
+            const script = document.createElement('script');
+            script.src = 'https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js';
+            script.onload = function() {
+                console.log('✅ CDN alternatif chargé avec succès');
+                cdnCharge = true;
+                genererQRCode();
+            };
+            script.onerror = function() {
+                document.getElementById('status').innerHTML = 
+                    '<div class="error">❌ Erreur: Impossible de charger QRCode depuis aucun CDN</div>';
+            };
+            document.head.appendChild(script);
+        }
+        
+        // Attendre le chargement
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                if (typeof QRCode !== 'undefined') {
+                    console.log('✅ QRCode chargé depuis le CDN principal');
+                    cdnCharge = true;
+                    genererQRCode();
+                } else if (!cdnCharge) {
+                    console.log('⏳ QRCode pas encore chargé, nouvelle tentative...');
+                    setTimeout(function() {
+                        if (typeof QRCode !== 'undefined') {
+                            cdnCharge = true;
+                            genererQRCode();
+                        } else {
+                            chargerAlternatif();
+                        }
+                    }, 1000);
+                }
+            }, 100);
+        });
+        
+        function genererQRCode() {
+            const container = document.getElementById('qrcode');
+            
+            // Vérifier si QRCode est disponible
+            if (typeof QRCode === 'undefined') {
+                document.getElementById('status').innerHTML = 
+                    '<div class="error">❌ Erreur: Bibliothèque QRCode non disponible</div>';
+                document.getElementById('info').innerHTML = 
+                    '<div class="error"><strong>Solution:</strong> Vérifiez votre connexion Internet ou utilisez un autre CDN.</div>';
+                return;
+            }
+            
+            // Nettoyer le conteneur
+            container.innerHTML = '';
+            
+            // Générer un code test
+            const monCode = Math.floor(100 + Math.random() * 900).toString();
+            const nomJoueur = 'TestJoueur';
+            const qrcodeUrl = `${window.location.origin}/ami.html?code=${monCode}&nom=${encodeURIComponent(nomJoueur)}`;
+            
+            try {
+                // Créer le QR Code
+                qrcodeInstance = new QRCode(container, {
+                    text: qrcodeUrl,
+                    width: 200,
+                    height: 200,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+                
+                document.getElementById('status').innerHTML = 
+                    '<div class="info">✅ QR Code généré avec succès!</div>';
+                
+                document.getElementById('info').innerHTML = `
+                    <div class="info">
+                        <strong>📋 Informations:</strong><br>
+                        • Code: ${monCode}<br>
+                        • Joueur: ${nomJoueur}<br>
+                        • URL: ${qrcodeUrl.substring(0, 60)}...
+                    </div>
+                `;
+                
+                console.log('✅ QR Code généré:', qrcodeUrl);
+                
+            } catch (error) {
+                document.getElementById('status').innerHTML = 
+                    '<div class="error">❌ Erreur lors de la génération du QR Code</div>';
+                document.getElementById('info').innerHTML = 
+                    `<div class="error"><strong>Erreur:</strong> ${error.message}</div>`;
+                console.error('❌ Erreur QR Code:', error);
+            }
+        }
+        
+        function regenererQR() {
+            genererQRCode();
+        }
+    </script>
+</body>
+</html>
