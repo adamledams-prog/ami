@@ -207,6 +207,36 @@ function startGame() {
         document.getElementById('attack-button').style.display = 'flex';
     }
     
+    // IMPORTANT : Écrire immédiatement dans Firebase pour que les autres joueurs nous voient
+    if (window.firebaseDB && window.firebaseRef && window.firebaseSet) {
+        const playerRef = window.firebaseRef(window.firebaseDB, 'game/players/' + playerCode);
+        window.firebaseSet(playerRef, {
+            name: playerName,
+            x: player.x,
+            y: player.y,
+            role: playerRole,
+            alive: player.alive,
+            invisible: false,
+            timestamp: Date.now()
+        });
+        
+        // Commencer à écouter les autres joueurs IMMÉDIATEMENT
+        const playersRef = window.firebaseRef(window.firebaseDB, 'game/players');
+        window.firebaseOnValue(playersRef, (snapshot) => {
+            const players = snapshot.val();
+            if (players) {
+                otherPlayers = {};
+                for (const [code, data] of Object.entries(players)) {
+                    // Accepter les joueurs connectés dans les 10 dernières secondes (au lieu de 5)
+                    if (code !== playerCode && Date.now() - data.timestamp < 10000) {
+                        otherPlayers[code] = data;
+                    }
+                }
+                updatePlayersCount();
+            }
+        });
+    }
+    
     // Compteur de 5 secondes (augmenté pour la synchronisation)
     let countdown = 5;
     const countdownEl = document.getElementById('countdown');
@@ -222,13 +252,13 @@ function startGame() {
             document.getElementById('start-screen').style.display = 'none';
             gameLoop();
             
-            // Synchro Firebase
+            // Synchro Firebase continue
             syncToFirebase();
             
-            // Vérifier après 5 secondes s'il reste 1 seul joueur
+            // Vérifier après 10 secondes s'il reste 1 seul joueur (5s countdown + 5s sync)
             setTimeout(() => {
                 verifierJoueurUnique();
-            }, 5000);
+            }, 10000);
         }
     }, 1000);
 }
@@ -237,23 +267,31 @@ function startGame() {
 function verifierJoueurUnique() {
     if (!gameStarted || !player.alive) return;
     
-    const autresJoueursActifs = Object.values(otherPlayers).filter(p => {
-        // Vérifier que le joueur est vivant et connecté récemment (moins de 10s)
+    // Compter tous les joueurs (vivants ou morts) connectés récemment
+    const autresJoueursTotaux = Object.values(otherPlayers).filter(p => {
         const estRecent = p.timestamp && (Date.now() - p.timestamp) < 10000;
-        return p.alive && estRecent;
+        return estRecent;
     });
     
-    // Si aucun autre joueur actif, victoire par défaut
-    if (autresJoueursActifs.length === 0) {
-        endGame(true, 'Vous êtes le seul joueur ! Victoire par défaut ! 🎉');
+    // Si on détecte au moins 1 autre joueur, ne pas déclencher la victoire solo
+    // Cette vérification est juste pour les parties vraiment solo
+    if (autresJoueursTotaux.length === 0) {
+        console.log('⚠️ Aucun autre joueur détecté après 10 secondes');
+        const autresJoueursVivants = Object.values(otherPlayers).filter(p => p.alive);
+        if (autresJoueursVivants.length === 0) {
+            endGame(true, 'Vous êtes le seul joueur ! Victoire par défaut ! 🎉');
+        }
+    } else {
+        console.log(`✅ ${autresJoueursTotaux.length} autre(s) joueur(s) détecté(s)`);
     }
 }
 
-// Synchroniser avec Firebase
+// Synchroniser avec Firebase (écriture périodique)
 function syncToFirebase() {
     if (window.firebaseDB && window.firebaseRef && window.firebaseSet) {
         const playerRef = window.firebaseRef(window.firebaseDB, 'game/players/' + playerCode);
         
+        // Écrire périodiquement la position et l'état
         setInterval(() => {
             window.firebaseSet(playerRef, {
                 name: playerName,
@@ -265,21 +303,6 @@ function syncToFirebase() {
                 timestamp: Date.now()
             });
         }, 100);
-        
-        // Écouter les autres joueurs
-        const playersRef = window.firebaseRef(window.firebaseDB, 'game/players');
-        window.firebaseOnValue(playersRef, (snapshot) => {
-            const players = snapshot.val();
-            if (players) {
-                otherPlayers = {};
-                for (const [code, data] of Object.entries(players)) {
-                    if (code !== playerCode && Date.now() - data.timestamp < 5000) {
-                        otherPlayers[code] = data;
-                    }
-                }
-                updatePlayersCount();
-            }
-        });
     }
 }
 
