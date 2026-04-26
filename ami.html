@@ -425,10 +425,27 @@
                                 <div class="ami-nom">${ami.nom}</div>
                             </div>
                         </div>
-                        <button class="btn-supprimer" onclick="supprimerAmi(${index})">🗑️</button>
+                        <div class="ami-actions">
+                            <button class="btn-renommer" onclick="renommerAmi(${index})" title="Renommer">✏️</button>
+                            <button class="btn-supprimer" onclick="supprimerAmi(${index})" title="Supprimer">🗑️</button>
+                        </div>
                     `;
                     container.appendChild(amiDiv);
                 });
+            }
+        }
+
+        // Fonction pour renommer un ami
+        function renommerAmi(index) {
+            const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+            const ami = amis[index];
+            
+            const nouveauNom = prompt('Nouveau nom pour cet ami :', ami.nom);
+            
+            if (nouveauNom && nouveauNom.trim() !== '') {
+                amis[index].nom = nouveauNom.trim();
+                localStorage.setItem('mesAmis', JSON.stringify(amis));
+                afficherAmis();
             }
         }
 
@@ -637,8 +654,14 @@
                     uniqueId: uniqueId
                 });
                 
+                // Ajouter aussi l'ami localement (bidirectionnel)
+                const nomAmiTemporaire = 'Joueur ' + codeAmi;
+                amis.push({ nom: nomAmiTemporaire, code: codeAmi });
+                localStorage.setItem('mesAmis', JSON.stringify(amis));
+                afficherAmis();
+                
                 // Confirmation
-                alert('✅ Demande d\'ami envoyée au joueur avec le code ' + codeAmi + ' !\n\nIl recevra votre demande automatiquement. 🎉');
+                alert('✅ Ami ajouté avec succès !\n\n"' + nomAmiTemporaire + '" a été ajouté à votre liste.\nVous pouvez le renommer si vous voulez. 🎉');
                 codeInput.value = '';
             } else {
                 alert('❌ Erreur : Firebase non initialisé. Veuillez recharger la page.');
