@@ -347,9 +347,87 @@ function endGame(victory, message) {
 const joystickLeft = document.getElementById('joystick-left');
 const stickLeft = document.getElementById('stick-left');
 
+// Variables pour contrôles clavier
+let keysPressed = {
+    ArrowUp: false,
+    ArrowDown: false,
+    ArrowLeft: false,
+    ArrowRight: false
+};
+
+// CONTRÔLES CLAVIER (PC)
+document.addEventListener('keydown', (e) => {
+    // Gestion des flèches
+    if (keysPressed.hasOwnProperty(e.key)) {
+        e.preventDefault();
+        keysPressed[e.key] = true;
+    }
+    
+    // Attaque avec ESPACE
+    if (e.key === ' ' || e.code === 'Space') {
+        e.preventDefault();
+        if (playerRole === 'murderer' && canMove) {
+            tryKill();
+        }
+    }
+});
+
+document.addEventListener('keyup', (e) => {
+    if (keysPressed.hasOwnProperty(e.key)) {
+        e.preventDefault();
+        keysPressed[e.key] = false;
+    }
+});
+
+// JOYSTICK TACTILE (Téléphone/Tablette)
 joystickLeft.addEventListener('touchstart', handleJoystickStart, { passive: false });
 joystickLeft.addEventListener('touchmove', handleJoystickMove, { passive: false });
 joystickLeft.addEventListener('touchend', handleJoystickEnd, { passive: false });
+
+// JOYSTICK SOURIS (PC)
+joystickLeft.addEventListener('mousedown', handleJoystickStartMouse);
+document.addEventListener('mousemove', handleJoystickMoveMouse);
+document.addEventListener('mouseup', handleJoystickEndMouse);
+
+let mouseJoystickActive = false;
+
+function handleJoystickStartMouse(e) {
+    e.preventDefault();
+    mouseJoystickActive = true;
+    joystickActive = true;
+}
+
+function handleJoystickMoveMouse(e) {
+    if (!mouseJoystickActive) return;
+    e.preventDefault();
+    
+    const rect = joystickLeft.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const deltaX = e.clientX - centerX;
+    const deltaY = e.clientY - centerY;
+    
+    const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+    const maxDistance = rect.width / 2 - 30;
+    
+    joystickAngle = Math.atan2(deltaY, deltaX);
+    joystickPower = Math.min(distance / maxDistance, 1);
+    
+    const stickX = Math.cos(joystickAngle) * joystickPower * maxDistance;
+    const stickY = Math.sin(joystickAngle) * joystickPower * maxDistance;
+    
+    stickLeft.style.transform = `translate(calc(-50% + ${stickX}px), calc(-50% + ${stickY}px))`;
+}
+
+function handleJoystickEndMouse(e) {
+    if (!mouseJoystickActive) return;
+    e.preventDefault();
+    mouseJoystickActive = false;
+    joystickActive = false;
+    joystickPower = 0;
+    stickLeft.style.transform = 'translate(-50%, -50%)';
+}
 
 function handleJoystickStart(e) {
     e.preventDefault();
@@ -387,8 +465,16 @@ function handleJoystickEnd(e) {
     stickLeft.style.transform = 'translate(-50%, -50%)';
 }
 
-// Bouton d'attaque
+// Bouton d'attaque (Tactile)
 document.getElementById('attack-button').addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    if (playerRole === 'murderer' && canMove) {
+        tryKill();
+    }
+});
+
+// Bouton d'attaque (Souris pour PC)
+document.getElementById('attack-button').addEventListener('click', (e) => {
     e.preventDefault();
     if (playerRole === 'murderer' && canMove) {
         tryKill();
@@ -427,11 +513,32 @@ function gameLoop() {
 function update() {
     if (!canMove || !player.alive) return;
     
-    // Déplacement via joystick
+    const speed = PLAYER_SPEED * vitesseMultiplicateur;
+    let moveX = 0;
+    let moveY = 0;
+    
+    // Déplacement via CLAVIER (PC)
+    if (keysPressed.ArrowUp) moveY -= 1;
+    if (keysPressed.ArrowDown) moveY += 1;
+    if (keysPressed.ArrowLeft) moveX -= 1;
+    if (keysPressed.ArrowRight) moveX += 1;
+    
+    // Normaliser le mouvement diagonal
+    if (moveX !== 0 && moveY !== 0) {
+        moveX *= 0.707;
+        moveY *= 0.707;
+    }
+    
+    // Déplacement via JOYSTICK (Tactile/Souris)
     if (joystickPower > 0) {
-        const speed = PLAYER_SPEED * vitesseMultiplicateur;
-        const newX = player.x + Math.cos(joystickAngle) * joystickPower * speed;
-        const newY = player.y + Math.sin(joystickAngle) * joystickPower * speed;
+        moveX = Math.cos(joystickAngle) * joystickPower;
+        moveY = Math.sin(joystickAngle) * joystickPower;
+    }
+    
+    // Appliquer le mouvement
+    if (moveX !== 0 || moveY !== 0) {
+        const newX = player.x + moveX * speed;
+        const newY = player.y + moveY * speed;
         
         // Collision avec les murs
         if (!isWall(newX, player.y)) {
