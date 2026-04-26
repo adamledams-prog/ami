@@ -238,6 +238,78 @@ body {
     backdrop-filter: blur(10px);
 }
 
+/* Barre de bonus */
+.bonus-bar {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 10px 20px;
+    margin-top: 10px;
+    pointer-events: auto;
+}
+
+.bonus-item {
+    background: rgba(0, 0, 0, 0.8);
+    border: 3px solid #4CAF50;
+    border-radius: 12px;
+    padding: 12px 18px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 80px;
+}
+
+.bonus-item:hover {
+    transform: scale(1.1);
+    border-color: #00ff00;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+}
+
+.bonus-item.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    border-color: #666;
+}
+
+.bonus-item.disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.bonus-icon {
+    font-size: 28px;
+}
+
+.bonus-name {
+    color: white;
+    font-size: 11px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.bonus-quantity {
+    color: #4CAF50;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.bonus-item.active {
+    border-color: #FFD700;
+    animation: bonusActive 1s infinite;
+}
+
+@keyframes bonusActive {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+    50% {
+        box-shadow: 0 0 25px rgba(255, 215, 0, 0.8);
+    }
+}
+
 /* Minimap */
 .minimap {
     position: fixed;

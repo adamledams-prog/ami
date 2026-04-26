@@ -16,8 +16,8 @@ window.addEventListener('resize', resizeCanvas);
 
 // Variables du jeu
 const TILE_SIZE = 40;
-const MAZE_WIDTH = 80;
-const MAZE_HEIGHT = 60;
+const MAZE_WIDTH = 40;  // Réduit de 80 à 40
+const MAZE_HEIGHT = 30; // Réduit de 60 à 30
 const VISION_RADIUS = 200;
 const PLAYER_SIZE = 30;
 const PLAYER_SPEED = 3;
@@ -48,6 +48,81 @@ let otherPlayers = {};
 let joystickActive = false;
 let joystickAngle = 0;
 let joystickPower = 0;
+
+// Bonus système
+let bonusActifs = {};
+let vitesseMultiplicateur = 1;
+let invisible = false;
+
+// Charger les bonus depuis le localStorage
+function chargerBonus() {
+    const bonusBar = document.getElementById('bonus-bar');
+    bonusBar.innerHTML = '';
+    
+    const bonus = [
+        { key: 'potionInvisibilite3s', icon: '👻', name: 'Invisibilité 3s', duree: 3000 },
+        { key: 'potionInvisibilite5s', icon: '👻', name: 'Invisibilité 5s', duree: 5000 },
+        { key: 'potionInvisibilite7s', icon: '👻', name: 'Invisibilité 7s', duree: 7000 },
+        { key: 'vitesse1_5x', icon: '⚡', name: 'Vitesse 1.5x', duree: 3000, mult: 1.5 },
+        { key: 'vitesse2x', icon: '⚡', name: 'Vitesse 2x', duree: 3000, mult: 2 },
+        { key: 'vitesse2_5x', icon: '⚡', name: 'Vitesse 2.5x', duree: 3000, mult: 2.5 },
+        { key: 'carteDecouvreur', icon: '🗺️', name: 'Carte', duree: 0 }
+    ];
+    
+    bonus.forEach(b => {
+        const quantite = parseInt(localStorage.getItem(b.key)) || 0;
+        if (quantite > 0) {
+            const bonusItem = document.createElement('div');
+            bonusItem.className = 'bonus-item';
+            bonusItem.innerHTML = `
+                <div class="bonus-icon">${b.icon}</div>
+                <div class="bonus-name">${b.name}</div>
+                <div class="bonus-quantity">x${quantite}</div>
+            `;
+            
+            bonusItem.onclick = () => activerBonus(b.key, b.duree, b.mult || 1);
+            bonusBar.appendChild(bonusItem);
+        }
+    });
+}
+
+// Activer un bonus
+function activerBonus(key, duree, multiplicateur) {
+    const quantite = parseInt(localStorage.getItem(key)) || 0;
+    
+    if (quantite <= 0 || bonusActifs[key]) {
+        return; // Pas de bonus ou déjà actif
+    }
+    
+    // Décrémenter la quantité
+    localStorage.setItem(key, quantite - 1);
+    
+    // Activer l'effet
+    if (key.startsWith('potionInvisibilite')) {
+        invisible = true;
+        bonusActifs[key] = true;
+        
+        setTimeout(() => {
+            invisible = false;
+            bonusActifs[key] = false;
+            chargerBonus();
+        }, duree);
+    } else if (key.startsWith('vitesse')) {
+        vitesseMultiplicateur = multiplicateur;
+        bonusActifs[key] = true;
+        
+        setTimeout(() => {
+            vitesseMultiplicateur = 1;
+            bonusActifs[key] = false;
+            chargerBonus();
+        }, duree);
+    } else if (key === 'carteDecouvreur') {
+        // Révéler toute la carte (pas implémenté pour l'instant)
+        alert('🗺️ Carte révélée !');
+    }
+    
+    chargerBonus();
+}
 
 // Générer un labyrinthe simple
 function generateMaze() {
@@ -124,13 +199,16 @@ function startGame() {
     // Afficher le nom
     document.getElementById('player-name').textContent = playerName;
     
+    // Charger la barre de bonus
+    chargerBonus();
+    
     // Afficher le bouton d'attaque pour le meurtrier
     if (playerRole === 'murderer') {
         document.getElementById('attack-button').style.display = 'flex';
     }
     
-    // Compteur de 2 secondes
-    let countdown = 2;
+    // Compteur de 5 secondes (augmenté pour la synchronisation)
+    let countdown = 5;
     const countdownEl = document.getElementById('countdown');
     
     const countInterval = setInterval(() => {
@@ -158,10 +236,11 @@ function syncToFirebase() {
         setInterval(() => {
             window.firebaseSet(playerRef, {
                 name: playerName,
-                x: player.x,
-                y: player.y,
+                x: invisible ? -9999 : player.x,  // Cacher la position si invisible
+                y: invisible ? -9999 : player.y,
                 role: playerRole,
                 alive: player.alive,
+                invisible: invisible,
                 timestamp: Date.now()
             });
         }, 100);
@@ -306,8 +385,9 @@ function update() {
     
     // Déplacement via joystick
     if (joystickPower > 0) {
-        const newX = player.x + Math.cos(joystickAngle) * joystickPower * PLAYER_SPEED;
-        const newY = player.y + Math.sin(joystickAngle) * joystickPower * PLAYER_SPEED;
+        const speed = PLAYER_SPEED * vitesseMultiplicateur;
+        const newX = player.x + Math.cos(joystickAngle) * joystickPower * speed;
+        const newY = player.y + Math.sin(joystickAngle) * joystickPower * speed;
         
         // Collision avec les murs
         if (!isWall(newX, player.y)) {
@@ -364,7 +444,7 @@ function render() {
     
     // Dessiner les autres joueurs (dans le cercle de vision)
     for (const [code, otherPlayer] of Object.entries(otherPlayers)) {
-        if (!otherPlayer.alive) continue;
+        if (!otherPlayer.alive || otherPlayer.x < 0 || otherPlayer.invisible) continue;
         
         const dx = otherPlayer.x - player.x;
         const dy = otherPlayer.y - player.y;

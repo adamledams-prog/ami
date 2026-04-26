@@ -1,0 +1,92 @@
+/* Notification globale de partie en haut de l'écran */
+.notification-partie-global {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 20px 30px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.7);
+    z-index: 10000;
+    min-width: 350px;
+    text-align: center;
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateX(-50%) translateY(-100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.notif-global-contenu p {
+    font-size: 18px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+}
+
+.notif-global-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 12px;
+    justify-content: center;
+}
+
+.notif-global-actions .btn-accepter,
+.notif-global-actions .btn-refuser {
+    padding: 10px 25px;
+    font-size: 15px;
+    font-weight: bold;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.notif-global-actions .btn-accepter {
+    background: linear-gradient(135deg, #00cc00, #009900);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 200, 0, 0.4);
+}
+
+.notif-global-actions .btn-accepter:hover {
+    background: linear-gradient(135deg, #009900, #006600);
+    transform: translateY(-2px);
+}
+
+.notif-global-actions .btn-refuser {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.4);
+}
+
+.notif-global-actions .btn-refuser:hover {
+    background: linear-gradient(135deg, #cc0000, #990000);
+    transform: translateY(-2px);
+}
+
+/* Responsive mobile */
+@media (max-width: 768px) {
+    .notification-partie-global {
+        min-width: 90%;
+        padding: 15px 20px;
+        top: 10px;
+    }
+
+    .notif-global-contenu p {
+        font-size: 16px;
+    }
+
+    .notif-global-actions .btn-accepter,
+    .notif-global-actions .btn-refuser {
+        padding: 8px 20px;
+        font-size: 14px;
+    }
+}
