@@ -86,6 +86,18 @@
         </div>
     </div>
 
+    <!-- Notification invitation de partie (en bas) -->
+    <div class="notification-partie-bas" id="notification-partie-bas" style="display: none;">
+        <div class="notif-contenu">
+            <p id="notif-message"></p>
+            <div id="notif-timer" style="font-size: 24px; font-weight: bold; margin: 10px 0;"></div>
+            <div class="notif-actions">
+                <button id="btn-accepter-notif" class="btn-accepter">✓ Accepter</button>
+                <button id="btn-refuser-notif" class="btn-refuser">✗ Refuser</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Notification d'invitations -->
     <div class="notification-invitations" id="notification-invitations" style="display: none;">
         <span>🔔 Nouvelles invitations !</span>
@@ -528,6 +540,11 @@
             }
         }, 1000);
 
+        // ==== SYSTÈME DE LANCEMENT DE PARTIE ====
+        
+        window.sessionPartie = null;
+        window.timerPartie = null;
+        
         // Bouton lancer la partie
         document.getElementById('btn-lancer-partie').addEventListener('click', function() {
             const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
@@ -537,43 +554,209 @@
                 return;
             }
 
-            // Envoyer une notification à tous les amis
+            // Créer une session de partie dans Firebase
             if (window.firebaseDB && window.firebaseRef && window.firebasePush && window.firebaseSet) {
+                const sessionId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const startTime = Date.now() + 10000; // Dans 10 secondes
+                
+                window.sessionPartie = sessionId;
+                
+                // Décider qui sera le meurtrier (l'hôte a 50% de chance)
+                const hoteEstMeurtrier = Math.random() < 0.5;
+                
+                // Créer la session dans Firebase
+                const sessionRef = window.firebaseRef(window.firebaseDB, 'sessions_partie/' + sessionId);
+                window.firebaseSet(sessionRef, {
+                    hote: window.nomJoueur,
+                    codeHote: window.monCode,
+                    startTime: startTime,
+                    codeMeurtrier: hoteEstMeurtrier ? window.monCode : 'pending',
+                    participants: {
+                        [window.monCode]: {
+                            nom: window.nomJoueur,
+                            accepte: true,
+                            timestamp: Date.now()
+                        }
+                    }
+                });
+                
+                // Stocker l'ID de session pour le récupérer dans game.html
+                localStorage.setItem('sessionPartieId', sessionId);
+                localStorage.setItem('monRole', hoteEstMeurtrier ? 'murderer' : 'innocent');
+                
+                // Envoyer une notification à tous les amis
                 amis.forEach(ami => {
-                    const notificationRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'notifications/' + ami.code));
+                    const notificationRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'invitations_partie/' + ami.code));
                     window.firebaseSet(notificationRef, {
                         de: window.nomJoueur,
-                        message: 'La partie va commencer !',
+                        codeHote: window.monCode,
+                        sessionId: sessionId,
+                        startTime: startTime,
                         timestamp: Date.now()
                     });
                 });
-
-                // Rediriger directement vers la partie
-                window.location.href = 'game.html';
+                
+                // Afficher message d'attente
+                alert('🎮 Invitation envoyée !\n\nEn attente des réponses...\n(10 secondes)');
+                
+                // Surveiller les réponses
+                surveillerSessionPartie(sessionId, startTime, hoteEstMeurtrier);
             } else {
                 alert('Erreur : Firebase non initialisé. Rechargez la page.');
             }
         });
-
-        // Afficher la notification de partie
-        function afficherNotificationPartie(nomAmi, message) {
-            document.getElementById('message-partie').textContent = `${nomAmi} vous invite !\n\n"${message}"`;
-            document.getElementById('modal-notification-partie').style.display = 'flex';
+        
+        // Fonction pour surveiller la session de partie
+        function surveillerSessionPartie(sessionId, startTime, hoteEstMeurtrier) {
+            const sessionRef = window.firebaseRef(window.firebaseDB, 'sessions_partie/' + sessionId);
             
-            // Son de notification (optionnel)
-            try {
-                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBSuBzvLZii0GHW7A7+OZRA0PVqzn7KdbFAg+l93zvmccBSaB0PLaiiwGHW/A7+OYQw0QVqzn7KdbFApBnt3ywWcbBS6Bz/Ljiz8GGnTD7+aUQQ0NVqzn67BbFAk+l93zvmcdBSaB0PLaiSwGH2/A7+OYRg0NWKzn66lbFAk+mN7zvmkbBSmB0PLbiisFH2/C7uOXRQ0PWK7n66lbFQo+l93z');
-                audio.play().catch(() => {});
-            } catch(e) {}
+            // Attendre la fin du compte à rebours
+            const timeout = startTime - Date.now();
+            
+            setTimeout(() => {
+                // Vérifier qui a accepté
+                window.firebaseOnValue(sessionRef, (snapshot) => {
+                    const session = snapshot.val();
+                    
+                    if (session && session.participants) {
+                        const participants = Object.values(session.participants);
+                        const acceptes = participants.filter(p => p.accepte);
+                        
+                        if (acceptes.length >= 2) {
+                            // Au moins 1 ami a accepté (+ l'hôte) → Lancer
+                            window.location.href = 'game.html';
+                        } else {
+                            // Personne n'a accepté
+                            alert('❌ Partie non lancée\n\nAucun ami n\'a accepté votre invitation.');
+                        }
+                    }
+                }, { onlyOnce: true });
+            }, timeout + 500);
+        }
+        
+        // Écouter les invitations de partie
+        setTimeout(() => {
+            if (window.firebaseDB && window.firebaseRef && window.firebaseOnValue) {
+                const invitationsRef = window.firebaseRef(window.firebaseDB, 'invitations_partie/' + window.monCode);
+                
+                window.firebaseOnValue(invitationsRef, (snapshot) => {
+                    const invitations = snapshot.val();
+                    if (invitations) {
+                        // Récupérer la dernière invitation
+                        const keys = Object.keys(invitations);
+                        const lastKey = keys[keys.length - 1];
+                        const lastInvit = invitations[lastKey];
+                        
+                        // Vérifier si on a déjà vu cette invitation
+                        const lastSeenInvit = localStorage.getItem('lastSeenInvitPartie');
+                        if (lastKey !== lastSeenInvit) {
+                            // Nouvelle invitation !
+                            localStorage.setItem('lastSeenInvitPartie', lastKey);
+                            afficherNotificationPartie(lastInvit);
+                        }
+                    }
+                });
+            }
+        }, 1000);
+        
+        // Afficher la notification de partie (en bas de l'écran)
+        function afficherNotificationPartie(invitation) {
+            const notifDiv = document.getElementById('notification-partie-bas');
+            const messageEl = document.getElementById('notif-message');
+            const timerEl = document.getElementById('notif-timer');
+            
+            messageEl.textContent = `${invitation.de} lance une partie !`;
+            notifDiv.style.display = 'flex';
+            
+            // Compte à rebours
+            const endTime = invitation.startTime;
+            
+            function updateTimer() {
+                const remaining = Math.max(0, Math.ceil((endTime - Date.now()) / 1000));
+                timerEl.textContent = `⏱️ ${remaining}s`;
+                
+                if (remaining > 0) {
+                    window.timerPartie = setTimeout(updateTimer, 100);
+                } else {
+                    notifDiv.style.display = 'none';
+                    clearTimeout(window.timerPartie);
+                }
+            }
+            
+            updateTimer();
+            
+            // Bouton accepter
+            document.getElementById('btn-accepter-notif').onclick = function() {
+                accepterPartie(invitation);
+            };
+            
+            // Bouton refuser
+            document.getElementById('btn-refuser-notif').onclick = function() {
+                refuserPartie(invitation);
+            };
+        }
+        
+        // Accepter la partie
+        function accepterPartie(invitation) {
+            const notifDiv = document.getElementById('notification-partie-bas');
+            notifDiv.style.display = 'none';
+            clearTimeout(window.timerPartie);
+            
+            // Vérifier si c'est le premier à accepter et si le meurtrier n'est pas encore attribué
+            const sessionRef = window.firebaseRef(window.firebaseDB, 'sessions_partie/' + invitation.sessionId);
+            
+            window.firebaseOnValue(sessionRef, (snapshot) => {
+                const session = snapshot.val();
+                let estMeurtrier = false;
+                
+                if (session && session.codeMeurtrier === 'pending') {
+                    // Personne n'est encore le meurtrier, donc ce joueur le devient
+                    estMeurtrier = true;
+                    
+                    // Mettre à jour dans Firebase
+                    const meurtifierRef = window.firebaseRef(window.firebaseDB, 'sessions_partie/' + invitation.sessionId + '/codeMeurtrier');
+                    window.firebaseSet(meurtifierRef, window.monCode);
+                }
+                
+                // Stocker le rôle
+                localStorage.setItem('sessionPartieId', invitation.sessionId);
+                localStorage.setItem('monRole', estMeurtrier ? 'murderer' : 'innocent');
+                
+                // Ajouter le joueur à la session
+                const participantRef = window.firebaseRef(window.firebaseDB, 'sessions_partie/' + invitation.sessionId + '/participants/' + window.monCode);
+                window.firebaseSet(participantRef, {
+                    nom: window.nomJoueur,
+                    accepte: true,
+                    timestamp: Date.now()
+                });
+                
+                // Attendre le début de la partie
+                const waitTime = invitation.startTime - Date.now();
+                
+                setTimeout(() => {
+                    window.location.href = 'game.html';
+                }, Math.max(0, waitTime));
+                
+                alert('✅ Accepté ! Lancement dans quelques secondes...');
+            }, { onlyOnce: true });
+        }
+        
+        // Refuser la partie
+        function refuserPartie(invitation) {
+            const notifDiv = document.getElementById('notification-partie-bas');
+            notifDiv.style.display = 'none';
+            clearTimeout(window.timerPartie);
+            
+            // Ne rien faire de plus
         }
 
-        // Bouton accepter partie
+        // Bouton accepter partie (modal - garder pour compatibilité)
         document.getElementById('btn-accepter-partie').addEventListener('click', function() {
             document.getElementById('modal-notification-partie').style.display = 'none';
             window.location.href = 'game.html';
         });
 
-        // Bouton refuser partie
+        // Bouton refuser partie (modal - garder pour compatibilité)
         document.getElementById('btn-refuser-partie').addEventListener('click', function() {
             document.getElementById('modal-notification-partie').style.display = 'none';
         });

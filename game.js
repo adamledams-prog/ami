@@ -105,8 +105,16 @@ function startGame() {
     player.x = pos.x;
     player.y = pos.y;
     
-    // Définir le rôle (1 meurtrier sur 5 joueurs)
-    playerRole = Math.random() < 0.2 ? 'murderer' : 'innocent';
+    // Définir le rôle depuis localStorage (attribué par le système d'amis)
+    const roleFromStorage = localStorage.getItem('monRole');
+    if (roleFromStorage) {
+        playerRole = roleFromStorage;
+        // Nettoyer après utilisation
+        localStorage.removeItem('monRole');
+    } else {
+        // Fallback : attribution aléatoire (1 meurtrier sur 5 joueurs)
+        playerRole = Math.random() < 0.2 ? 'murderer' : 'innocent';
+    }
     
     // Afficher le rôle
     const roleElement = document.getElementById('role-name');

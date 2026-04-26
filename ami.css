@@ -393,6 +393,80 @@
     transform: scale(1.1);
 }
 
+/* Notification de partie en bas */
+.notification-partie-bas {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.6);
+    z-index: 1000;
+    min-width: 400px;
+    text-align: center;
+    animation: slideUp 0.5s ease-out;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
+    }
+}
+
+.notif-contenu p {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+}
+
+.notif-actions {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    justify-content: center;
+}
+
+.notif-actions .btn-accepter,
+.notif-actions .btn-refuser {
+    padding: 12px 30px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.notif-actions .btn-accepter {
+    background: linear-gradient(135deg, #00cc00, #009900);
+    color: white;
+    box-shadow: 0 4px 10px rgba(0, 200, 0, 0.3);
+}
+
+.notif-actions .btn-accepter:hover {
+    background: linear-gradient(135deg, #009900, #006600);
+    transform: translateY(-2px);
+}
+
+.notif-actions .btn-refuser {
+    background: linear-gradient(135deg, #ff4444, #cc0000);
+    color: white;
+    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
+}
+
+.notif-actions .btn-refuser:hover {
+    background: linear-gradient(135deg, #cc0000, #990000);
+    transform: translateY(-2px);
+}
+
 /* Invitations */
 .invitation-card {
     background: linear-gradient(135deg, rgba(255, 200, 0, 0.2), rgba(255, 150, 0, 0.2));
@@ -867,5 +941,21 @@
     #message-confirmation {
         font-size: 14px;
         padding: 12px;
+    }
+
+    .notification-partie-bas {
+        min-width: 90%;
+        padding: 15px;
+        bottom: 10px;
+    }
+
+    .notif-contenu p {
+        font-size: 16px;
+    }
+
+    .notif-actions .btn-accepter,
+    .notif-actions .btn-refuser {
+        padding: 10px 20px;
+        font-size: 14px;
     }
 }
