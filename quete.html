@@ -20,10 +20,10 @@
     <div class="quetes-container">
         <div class="quete-card" id="quete-1" data-complete="false">
             <div class="quete-header">
-                <div class="quete-icone">🛡️</div>
+                <div class="quete-icone">🎮</div>
                 <div class="quete-info">
-                    <h3>Améliorer ton bouclier</h3>
-                    <p>Atteins le niveau 2 de bouclier</p>
+                    <h3>Jouer 2 parties</h3>
+                    <p>Participe à 2 parties de Battle Royale</p>
                 </div>
             </div>
             <div class="quete-progress">
@@ -31,7 +31,7 @@
                     <div class="progress-fill" id="progress-quete-1"></div>
                 </div>
                 <div class="progress-text">
-                    Niveau actuel : <span id="niveau-actuel">1</span> / 2
+                    Parties jouées : <span id="parties-jouees">0</span> / 2
                 </div>
             </div>
             <div class="quete-recompense">
@@ -55,7 +55,7 @@
                     <div class="progress-fill" id="progress-quete-2"></div>
                 </div>
                 <div class="progress-text">
-                    Fusils prêts : <span id="fusils-count">0</span> / 2
+                    Potions : <span id="potions-count">0</span> / 1
                 </div>
             </div>
             <div class="quete-recompense" id="recompense-quete-2" style="display: none;">
@@ -64,6 +64,36 @@
             </div>
             <button class="btn-reclamer" id="btn-reclamer-2" style="display: none;">Réclamer</button>
             <div class="quete-complete" id="complete-2" style="display: none;">✅ Terminée</div>
+        </div>
+
+        <div class="quete-card quete-locked" id="quete-3" data-complete="false">
+            <div class="quete-header">
+                <div class="quete-icone">🔒</div>
+                <div class="quete-info">
+                    <h3 id="titre-quete-3">Quête verrouillée</h3>
+                    <p id="desc-quete-3">Terminez la quête précédente pour déverrouiller</p>
+                </div>
+            </div>
+            <div class="quete-progress" id="progress-container-3" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-quete-3-potions"></div>
+                </div>
+                <div class="progress-text">
+                    Potions : <span id="total-potions">0</span> / 5
+                </div>
+                <div class="progress-bar" style="margin-top: 10px;">
+                    <div class="progress-fill" id="progress-quete-3-parties"></div>
+                </div>
+                <div class="progress-text">
+                    Parties : <span id="parties-quete-3">0</span> / 10
+                </div>
+            </div>
+            <div class="quete-recompense" id="recompense-quete-3" style="display: none;">
+                <span class="recompense-label">Récompense :</span>
+                <span class="recompense-valeur">🪨 1 Coffre Pierre</span>
+            </div>
+            <button class="btn-reclamer" id="btn-reclamer-3" style="display: none;">Réclamer</button>
+            <div class="quete-complete" id="complete-3" style="display: none;">✅ Terminée</div>
         </div>
 
         <div class="quete-card quete-locked">
@@ -82,9 +112,9 @@
         let pieces = parseInt(localStorage.getItem('pieces')) || 0;
         document.getElementById('pieces-quete').textContent = pieces;
 
-        // Récupérer le niveau de bouclier
-        const niveauBouclier = parseInt(localStorage.getItem('niveauBouclier')) || 1;
-        document.getElementById('niveau-actuel').textContent = niveauBouclier;
+        // Récupérer le nombre de parties jouées
+        const partiesJouees = parseInt(localStorage.getItem('partiesJouees')) || 0;
+        document.getElementById('parties-jouees').textContent = partiesJouees;
 
         // Vérifier si la quête est complétée
         const quete1Complete = localStorage.getItem('quete1Complete') === 'true';
@@ -92,7 +122,7 @@
 
         // Mettre à jour la barre de progression
         const progressFill = document.getElementById('progress-quete-1');
-        const pourcentage = Math.min((niveauBouclier / 2) * 100, 100);
+        const pourcentage = Math.min((partiesJouees / 2) * 100, 100);
         progressFill.style.width = pourcentage + '%';
 
         // Gérer l'état de la quête
@@ -100,12 +130,12 @@
             // Quête déjà réclamée
             document.querySelector('.quete-complete').style.display = 'block';
             document.getElementById('quete-1').classList.add('complete');
-        } else if (niveauBouclier >= 2) {
+        } else if (partiesJouees >= 2) {
             // Quête terminée, récompense à réclamer
             document.getElementById('btn-reclamer-1').style.display = 'block';
         }
 
-        // Bouton réclamer
+        // Bouton réclamer quête 1
         document.getElementById('btn-reclamer-1').addEventListener('click', function() {
             // Ajouter 30 pièces
             pieces += 30;
@@ -120,24 +150,25 @@
             document.querySelector('.quete-complete').style.display = 'block';
             document.getElementById('quete-1').classList.add('complete');
 
-            // Animation de récompense
             this.textContent = '✅ Réclamé !';
             
             // Déverrouiller la quête 2
             document.getElementById('quete-2').classList.remove('quete-locked');
-            document.querySelector('#quete-2 .quete-icone').textContent = '🔫';
-            document.getElementById('titre-quete-2').textContent = 'Collectionne 2 armes';
-            document.getElementById('desc-quete-2').textContent = 'Obtiens 2 fusils prêts';
+            document.querySelector('#quete-2 .quete-icone').textContent = '👻';
+            document.getElementById('titre-quete-2').textContent = 'Obtenir une potion';
+            document.getElementById('desc-quete-2').textContent = 'Possède une potion d\'invisibilité';
             document.getElementById('progress-container-2').style.display = 'block';
             document.getElementById('recompense-quete-2').style.display = 'flex';
             
             // Mettre à jour la progression de la quête 2
-            const fusilsPrets = parseInt(localStorage.getItem('fusilsPrets')) || 0;
+            const potionsInvisibilite = parseInt(localStorage.getItem('potionInvisibilite')) || 0;
+            const hasPotionInvi = potionsInvisibilite > 0 ? 1 : 0;
+            document.getElementById('potions-count').textContent = hasPotionInvi;
             const progressFill2 = document.getElementById('progress-quete-2');
-            const pourcentage2 = Math.min((fusilsPrets / 2) * 100, 100);
+            const pourcentage2 = hasPotionInvi * 100;
             progressFill2.style.width = pourcentage2 + '%';
             
-            if (fusilsPrets >= 2 && localStorage.getItem('quete2Reclamee') !== 'true') {
+            if (hasPotionInvi >= 1 && localStorage.getItem('quete2Reclamee') !== 'true') {
                 document.getElementById('btn-reclamer-2').style.display = 'block';
             }
             
@@ -145,9 +176,10 @@
             alert('🎉 Félicitations !\n\nVous avez reçu 30 pièces ! 🪙\n\n🔓 Nouvelle quête déverrouillée !');
         });
 
-        // ==== QUÊTE 2 : Avoir 2 armes ====
-        const fusilsPrets = parseInt(localStorage.getItem('fusilsPrets')) || 0;
-        document.getElementById('fusils-count').textContent = fusilsPrets;
+        // ==== QUÊTE 2 : Avoir une potion d'invisibilité ====
+        const potionsInvisibilite = parseInt(localStorage.getItem('potionInvisibilite')) || 0;
+        const hasPotionInvi = potionsInvisibilite > 0 ? 1 : 0;
+        document.getElementById('potions-count').textContent = hasPotionInvi;
 
         const quete2Reclamee = localStorage.getItem('quete2Reclamee') === 'true';
 
@@ -155,22 +187,22 @@
         if (quete1Reclamee) {
             // Déverrouiller la quête 2
             document.getElementById('quete-2').classList.remove('quete-locked');
-            document.querySelector('#quete-2 .quete-icone').textContent = '🔫';
-            document.getElementById('titre-quete-2').textContent = 'Collectionne 2 armes';
-            document.getElementById('desc-quete-2').textContent = 'Obtiens 2 fusils prêts';
+            document.querySelector('#quete-2 .quete-icone').textContent = '👻';
+            document.getElementById('titre-quete-2').textContent = 'Obtenir une potion';
+            document.getElementById('desc-quete-2').textContent = 'Possède une potion d\'invisibilité';
             document.getElementById('progress-container-2').style.display = 'block';
             document.getElementById('recompense-quete-2').style.display = 'flex';
             
             // Barre de progression quête 2
             const progressFill2 = document.getElementById('progress-quete-2');
-            const pourcentage2 = Math.min((fusilsPrets / 2) * 100, 100);
+            const pourcentage2 = hasPotionInvi * 100;
             progressFill2.style.width = pourcentage2 + '%';
 
             // Gérer l'état de la quête 2
             if (quete2Reclamee) {
                 document.getElementById('complete-2').style.display = 'block';
                 document.getElementById('quete-2').classList.add('complete');
-            } else if (fusilsPrets >= 2) {
+            } else if (hasPotionInvi >= 1) {
                 document.getElementById('btn-reclamer-2').style.display = 'block';
             }
         }
@@ -187,9 +219,95 @@
 
             this.textContent = '✅ Réclamé !';
             
-            // Redirection vers base pour ouvrir le coffre
-            alert('🎉 Félicitations !\n\nVous avez reçu 1 Coffre Bronze ! 🎁\n\nRetournez à votre base pour l\'ouvrir !');
-            window.location.href = 'base.html?coffreBonus=1';
+            // Déverrouiller la quête 3
+            document.getElementById('quete-3').classList.remove('quete-locked');
+            document.querySelector('#quete-3 .quete-icone').textContent = '⚔️';
+            document.getElementById('titre-quete-3').textContent = 'Joueur expérimenté';
+            document.getElementById('desc-quete-3').textContent = 'Avoir 5 potions et jouer 10 parties';
+            document.getElementById('progress-container-3').style.display = 'block';
+            document.getElementById('recompense-quete-3').style.display = 'flex';
+            
+            // Mettre à jour la quête 3
+            const totalPotions = (parseInt(localStorage.getItem('potionInvisibilite')) || 0) + 
+                                 (parseInt(localStorage.getItem('potionVitesse')) || 0) + 
+                                 (parseInt(localStorage.getItem('potionForce')) || 0);
+            const partiesQ3 = parseInt(localStorage.getItem('partiesJouees')) || 0;
+            
+            document.getElementById('total-potions').textContent = totalPotions;
+            document.getElementById('parties-quete-3').textContent = partiesQ3;
+            
+            const progressPotions = document.getElementById('progress-quete-3-potions');
+            const progressParties = document.getElementById('progress-quete-3-parties');
+            progressPotions.style.width = Math.min((totalPotions / 5) * 100, 100) + '%';
+            progressParties.style.width = Math.min((partiesQ3 / 10) * 100, 100) + '%';
+            
+            if (totalPotions >= 5 && partiesQ3 >= 10 && localStorage.getItem('quete3Reclamee') !== 'true') {
+                document.getElementById('btn-reclamer-3').style.display = 'block';
+            }
+            
+            // Notification
+            alert('🎉 Félicitations !\n\nVous avez reçu 1 Coffre Bronze ! 🎁\n\n🔓 Nouvelle quête déverrouillée !\n\nRetournez à votre base pour ouvrir le coffre !');
+            
+            setTimeout(() => {
+                window.location.href = 'base.html?coffreBonus=1';
+            }, 1000);
+        });
+
+        // ==== QUÊTE 3 : Avoir 5 potions et 10 parties ====
+        const quete3Reclamee = localStorage.getItem('quete3Reclamee') === 'true';
+
+        // Vérifier si la quête 2 est réclamée pour déverrouiller la quête 3
+        if (quete2Reclamee) {
+            // Calculer le total de potions
+            const totalPotions = (parseInt(localStorage.getItem('potionInvisibilite')) || 0) + 
+                                 (parseInt(localStorage.getItem('potionVitesse')) || 0) + 
+                                 (parseInt(localStorage.getItem('potionForce')) || 0);
+            const partiesQ3 = parseInt(localStorage.getItem('partiesJouees')) || 0;
+            
+            document.getElementById('total-potions').textContent = totalPotions;
+            document.getElementById('parties-quete-3').textContent = partiesQ3;
+            
+            // Déverrouiller la quête 3
+            document.getElementById('quete-3').classList.remove('quete-locked');
+            document.querySelector('#quete-3 .quete-icone').textContent = '⚔️';
+            document.getElementById('titre-quete-3').textContent = 'Joueur expérimenté';
+            document.getElementById('desc-quete-3').textContent = 'Avoir 5 potions et jouer 10 parties';
+            document.getElementById('progress-container-3').style.display = 'block';
+            document.getElementById('recompense-quete-3').style.display = 'flex';
+            
+            // Barres de progression quête 3
+            const progressPotions = document.getElementById('progress-quete-3-potions');
+            const progressParties = document.getElementById('progress-quete-3-parties');
+            progressPotions.style.width = Math.min((totalPotions / 5) * 100, 100) + '%';
+            progressParties.style.width = Math.min((partiesQ3 / 10) * 100, 100) + '%';
+
+            // Gérer l'état de la quête 3
+            if (quete3Reclamee) {
+                document.getElementById('complete-3').style.display = 'block';
+                document.getElementById('quete-3').classList.add('complete');
+            } else if (totalPotions >= 5 && partiesQ3 >= 10) {
+                document.getElementById('btn-reclamer-3').style.display = 'block';
+            }
+        }
+
+        // Bouton réclamer quête 3
+        document.getElementById('btn-reclamer-3').addEventListener('click', function() {
+            // Marquer comme réclamée
+            localStorage.setItem('quete3Reclamee', 'true');
+
+            // Masquer le bouton et afficher complété
+            this.style.display = 'none';
+            document.getElementById('complete-3').style.display = 'block';
+            document.getElementById('quete-3').classList.add('complete');
+
+            this.textContent = '✅ Réclamé !';
+            
+            // Notification et redirection vers base pour le coffre pierre
+            alert('🎉 Félicitations !\n\nVous avez reçu 1 Coffre Pierre ! 🪨\n\nRetournez à votre base pour l\'ouvrir !');
+            
+            setTimeout(() => {
+                window.location.href = 'base.html?coffrePierre=1';
+            }, 1000);
         });
     </script>
 </body>

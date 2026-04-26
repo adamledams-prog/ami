@@ -539,6 +539,83 @@
     transform: scale(1.05);
 }
 
+/* Section ajouter par code */
+.ajouter-par-code {
+    position: absolute;
+    top: 80px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    width: 320px;
+    z-index: 10;
+}
+
+.ajouter-par-code h3 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+#input-code-ami {
+    width: 100%;
+    padding: 15px 20px;
+    font-size: 20px;
+    border: 3px solid #ddd;
+    border-radius: 10px;
+    text-align: center;
+    box-sizing: border-box;
+    letter-spacing: 5px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+#input-code-ami:focus {
+    outline: none;
+    border-color: #667eea;
+    box-shadow: 0 0 15px rgba(102, 126, 234, 0.3);
+}
+
+#btn-ajouter-code {
+    width: 100%;
+    padding: 15px 30px;
+    font-size: 18px;
+    font-weight: bold;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #00cc00, #009900);
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(0, 200, 0, 0.4);
+    transition: all 0.3s;
+}
+
+#btn-ajouter-code:hover {
+    background: linear-gradient(135deg, #009900, #006600);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 200, 0, 0.6);
+}
+
+#btn-ajouter-code:active {
+    transform: translateY(0);
+}
+
+/* Style pour le code d'ami dans le QR Code */
+.mon-code-ami {
+    text-align: center;
+    padding-top: 10px;
+    border-top: 2px solid rgba(0, 0, 0, 0.1);
+}
+
 /* Scrollbar personnalisée */
 .liste-amis::-webkit-scrollbar {
     width: 10px;
@@ -590,12 +667,48 @@
         letter-spacing: 2px;
     }
 
+    #mon-code-affiche {
+        font-size: 24px !important;
+        letter-spacing: 3px !important;
+    }
+
+    .mon-code-ami button {
+        padding: 6px 12px !important;
+        font-size: 11px !important;
+        margin-top: 5px !important;
+    }
+
     .btn-ajouter {
         top: 10px;
         right: 10px;
         width: 50px;
         height: 50px;
         font-size: 32px;
+    }
+
+    .ajouter-par-code {
+        top: auto;
+        bottom: 80px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        padding: 15px;
+    }
+
+    .ajouter-par-code h3 {
+        font-size: 16px;
+        margin-bottom: 12px;
+    }
+
+    #input-code-ami {
+        padding: 12px 15px;
+        font-size: 18px;
+        letter-spacing: 3px;
+    }
+
+    #btn-ajouter-code {
+        padding: 12px 20px;
+        font-size: 16px;
     }
 
     .btn-retour {

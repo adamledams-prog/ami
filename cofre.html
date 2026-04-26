@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coffre en Pierre - Battle Royale</title>
+    <link rel="stylesheet" href="stile.css">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="cofreenpiere.css">
+    <style>
+        #modal {
+            display: none;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2c2c2c 50%, #1a1a1a 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: Arial, sans-serif;
+            overflow: hidden;
+        }
+
+        .btn-retour {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .btn-retour:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: scale(1.05);
+        }
+
+        .compteur-pieces-base {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 215, 0, 0.95);
+            padding: 15px 25px;
+            border-radius: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+        }
+
+        .coffre-container {
+            text-align: center;
+            padding: 50px;
+        }
+
+        .coffre-container h1 {
+            color: #d0d0d0;
+            font-size: 48px;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(200, 200, 200, 0.8);
+            animation: titleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes titleGlow {
+            0%, 100% {
+                text-shadow: 0 0 20px rgba(200, 200, 200, 0.8);
+            }
+            50% {
+                text-shadow: 0 0 40px rgba(255, 255, 255, 1), 0 0 60px rgba(200, 200, 200, 0.8);
+            }
+        }
+
+        .btn-ouvrir-coffre {
+            padding: 25px 50px;
+            font-size: 28px;
+            font-weight: bold;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #606060, #a0a0a0, #606060);
+            background-size: 200% 200%;
+            color: #fff;
+            cursor: pointer;
+            box-shadow: 
+                0 10px 30px rgba(0, 0, 0, 0.5),
+                0 0 40px rgba(160, 160, 160, 0.5);
+            transition: all 0.3s;
+            animation: buttonPulse 2s ease-in-out infinite;
+        }
+
+        .btn-ouvrir-coffre:hover {
+            transform: scale(1.1);
+            box-shadow: 
+                0 15px 40px rgba(0, 0, 0, 0.7),
+                0 0 60px rgba(200, 200, 200, 0.8);
+        }
+
+        @keyframes buttonPulse {
+            0%, 100% {
+                background-position: 0% 50%;
+                box-shadow: 
+                    0 10px 30px rgba(0, 0, 0, 0.5),
+                    0 0 40px rgba(160, 160, 160, 0.5);
+            }
+            50% {
+                background-position: 100% 50%;
+                box-shadow: 
+                    0 15px 40px rgba(0, 0, 0, 0.7),
+                    0 0 60px rgba(200, 200, 200, 0.8);
+            }
+        }
+
+        .coffre-emoji {
+            font-size: 120px;
+            margin: 30px 0;
+            display: inline-block;
+            animation: coffreFloat 3s ease-in-out infinite;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.8));
+        }
+
+        @keyframes coffreFloat {
+            0%, 100% {
+                transform: translateY(0px) rotate(-5deg);
+            }
+            50% {
+                transform: translateY(-20px) rotate(5deg);
+            }
+        }
+
+        .stars-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            color: #c0c0c0;
+            font-size: 20px;
+            animation: starTwinkle 3s ease-in-out infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes starTwinkle {
+            0%, 100% {
+                opacity: 0.3;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.5);
+            }
+        }
+
+        .inventory-display {
+            margin-top: 40px;
+            color: #e0e0e0;
+            font-size: 18px;
+        }
+
+        .inventory-item {
+            display: inline-block;
+            margin: 10px 15px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            border: 2px solid rgba(200, 200, 200, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="stars-background" id="starsBackground"></div>
+
+    <div class="compteur-pieces-base">
+        <span id="compteur-pieces">💰 0</span>
+    </div>
+
+    <div class="coffre-container">
+        <h1>⚡ COFFRE EN PIERRE ⚡</h1>
+        <div class="coffre-emoji">�</div>
+        <br>
+        <button class="btn-ouvrir-coffre" onclick="ouvrirCoffrePierre()">
+            ✨ OUVRIR LE COFFRE ✨
+        </button>
+
+        <div class="inventory-display" id="inventoryDisplay"></div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="modal">
+        <div class="modal-content" id="modal-content">
+            <div class="light-circle"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="ray"></div>
+            <div class="coffre-container-modal" id="coffre-display"></div>
+            <p id="coffre-resultat"></p>
+            <div class="treasure-burst-pierre"></div>
+        </div>
+    </div>
+
+    <script>
+        // Initialisation
+        let pieces = parseInt(localStorage.getItem('pieces')) || 0;
+        let potionInvisibilite3s = parseInt(localStorage.getItem('potionInvisibilite3s')) || 0;
+        let potionInvisibilite5s = parseInt(localStorage.getItem('potionInvisibilite5s')) || 0;
+        let potionInvisibilite7s = parseInt(localStorage.getItem('potionInvisibilite7s')) || 0;
+        let potionVitesse1_5x = parseInt(localStorage.getItem('potionVitesse1_5x')) || 0;
+        let potionVitesse2x = parseInt(localStorage.getItem('potionVitesse2x')) || 0;
+        let potionVitesse2_5x = parseInt(localStorage.getItem('potionVitesse2_5x')) || 0;
+        let carteDecouvreur = parseInt(localStorage.getItem('carteDecouvreur')) || 0;
+
+        afficherPieces();
+        afficherInventaire();
+        creerEtoiles();
+
+        function afficherPieces() {
+            document.getElementById('compteur-pieces').textContent = `💰 ${pieces}`;
+        }
+
+        function afficherInventaire() {
+            const inventoryDiv = document.getElementById('inventoryDisplay');
+            let html = '<h3>📦 Inventaire</h3>';
+            
+            if (potionInvisibilite3s > 0) html += `<div class="inventory-item">👻 Invisibilité 3s: ${potionInvisibilite3s}</div>`;
+            if (potionInvisibilite5s > 0) html += `<div class="inventory-item">👻 Invisibilité 5s: ${potionInvisibilite5s}</div>`;
+            if (potionInvisibilite7s > 0) html += `<div class="inventory-item">👻 Invisibilité 7s: ${potionInvisibilite7s}</div>`;
+            if (potionVitesse1_5x > 0) html += `<div class="inventory-item">⚡ Vitesse 1.5x: ${potionVitesse1_5x}</div>`;
+            if (potionVitesse2x > 0) html += `<div class="inventory-item">⚡ Vitesse 2x: ${potionVitesse2x}</div>`;
+            if (potionVitesse2_5x > 0) html += `<div class="inventory-item">⚡ Vitesse 2.5x: ${potionVitesse2_5x}</div>`;
+            if (carteDecouvreur > 0) html += `<div class="inventory-item">🗺️ Carte découvreur: ${carteDecouvreur}</div>`;
+            
+            inventoryDiv.innerHTML = html;
+        }
+
+        function creerEtoiles() {
+            const container = document.getElementById('starsBackground');
+            for (let i = 0; i < 50; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.textContent = '⭐';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                star.style.fontSize = (10 + Math.random() * 20) + 'px';
+                container.appendChild(star);
+            }
+        }
+
+        function tirerCoffrePierre() {
+            const rand = Math.random() * 100;
+            
+            if (rand < 5) {
+                return { type: 'potion', nom: 'Potion d\'Invisibilité 5s', key: 'potionInvisibilite5s', icon: '👻' };
+            } else if (rand < 15) {
+                return { type: 'potion', nom: 'Potion d\'Invisibilité 3s', key: 'potionInvisibilite3s', icon: '👻' };
+            } else if (rand < 25) {
+                return { type: 'potion', nom: 'Potion de Vitesse 1.5x', key: 'potionVitesse1_5x', icon: '⚡' };
+            } else if (rand < 35) {
+                return { type: 'potion', nom: 'Potion de Vitesse 2x', key: 'potionVitesse2x', icon: '⚡' };
+            } else if (rand < 40) {
+                return { type: 'potion', nom: 'Potion d\'Invisibilité 7s', key: 'potionInvisibilite7s', icon: '👻' };
+            } else if (rand < 45) {
+                return { type: 'potion', nom: 'Potion de Vitesse 2.5x', key: 'potionVitesse2_5x', icon: '⚡' };
+            } else if (rand < 50) {
+                return { type: 'potion', nom: 'Carte du Découvreur', key: 'carteDecouvreur', icon: '🗺️' };
+            } else if (rand < 70) {
+                return { type: 'pieces', montant: 30 };
+            } else if (rand < 85) {
+                return { type: 'pieces', montant: 50 };
+            } else if (rand < 95) {
+                return { type: 'pieces', montant: 70 };
+            } else {
+                return { type: 'pieces', montant: 100 };
+            }
+        }
+
+        function ouvrirCoffrePierre() {
+            const modal = document.getElementById('modal');
+            const modalContent = document.getElementById('modal-content');
+            const resultatDiv = document.getElementById('coffre-resultat');
+            const coffreDisplay = document.getElementById('coffre-display');
+            
+            // Réinitialiser le modal
+            modalContent.classList.remove('opened', 'coffre-pierre');
+            resultatDiv.innerHTML = '';
+            resultatDiv.classList.remove('result-animate');
+            coffreDisplay.innerHTML = '';
+            
+            // Ajouter la classe coffre-pierre
+            modalContent.classList.add('coffre-pierre');
+            
+            // Afficher le coffre
+            coffreDisplay.innerHTML = `
+                <div class="coffre-top-pierre">�</div>
+                <div class="coffre-bottom-pierre">📦</div>
+            `;
+            
+            modal.style.display = 'flex';
+            
+            // Ouvrir après 2 secondes
+            setTimeout(() => {
+                modalContent.classList.add('opened');
+                
+                // Tirer le contenu
+                setTimeout(() => {
+                    const recompense = tirerCoffrePierre();
+                    let message = '';
+                    
+                    if (recompense.type === 'potion') {
+                        eval(`${recompense.key}++`);
+                        localStorage.setItem(recompense.key, eval(recompense.key));
+                        message = `${recompense.icon} ${recompense.nom} !`;
+                    } else {
+                        pieces += recompense.montant;
+                        localStorage.setItem('pieces', pieces);
+                        message = `💰 ${recompense.montant} pièces !`;
+                    }
+                    
+                    resultatDiv.innerHTML = `<strong>🎉 RÉCOMPENSE 🎉</strong>\n${message}`;
+                    resultatDiv.classList.add('result-animate');
+                    
+                    afficherPieces();
+                    afficherInventaire();
+                }, 1000);
+            }, 2000);
+        }
+
+        function fermerModal() {
+            const modal = document.getElementById('modal');
+            const modalContent = document.getElementById('modal-content');
+            const resultatDiv = document.getElementById('coffre-resultat');
+            const coffreDisplay = document.getElementById('coffre-display');
+            
+            modal.style.display = 'none';
+            modalContent.classList.remove('opened', 'coffre-pierre');
+            resultatDiv.innerHTML = '';
+            resultatDiv.classList.remove('result-animate');
+            coffreDisplay.innerHTML = '';
+        }
+
+
+    </script>
+</body>
+</html>

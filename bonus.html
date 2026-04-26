@@ -28,8 +28,8 @@
                         <h3>Invisibilité 3s</h3>
                         <p>Durée : 3 secondes</p>
                     </div>
-                    <div class="item-prix">🪙 30</div>
-                    <button class="btn-acheter" data-item="invi3" data-prix="30">Acheter</button>
+                    <div class="item-prix">🪙 40</div>
+                    <button class="btn-acheter" data-item="potionInvisibilite3s" data-prix="40">Acheter</button>
                 </div>
 
                 <div class="item-card">
@@ -38,8 +38,8 @@
                         <h3>Invisibilité 5s</h3>
                         <p>Durée : 5 secondes</p>
                     </div>
-                    <div class="item-prix">🪙 50</div>
-                    <button class="btn-acheter" data-item="invi5" data-prix="50">Acheter</button>
+                    <div class="item-prix">🪙 60</div>
+                    <button class="btn-acheter" data-item="potionInvisibilite5s" data-prix="60">Acheter</button>
                 </div>
 
                 <div class="item-card">
@@ -48,8 +48,8 @@
                         <h3>Invisibilité 7s</h3>
                         <p>Durée : 7 secondes</p>
                     </div>
-                    <div class="item-prix">🪙 70</div>
-                    <button class="btn-acheter" data-item="invi7" data-prix="70">Acheter</button>
+                    <div class="item-prix">🪙 80</div>
+                    <button class="btn-acheter" data-item="potionInvisibilite7s" data-prix="80">Acheter</button>
                 </div>
             </div>
         </div>
@@ -64,8 +64,8 @@
                         <h3>Vitesse 1.5x</h3>
                         <p>3s - Vitesse x1.5</p>
                     </div>
-                    <div class="item-prix">🪙 30</div>
-                    <button class="btn-acheter" data-item="vitesse1.5" data-prix="30">Acheter</button>
+                    <div class="item-prix">🪙 40</div>
+                    <button class="btn-acheter" data-item="potionVitesse1_5x" data-prix="40">Acheter</button>
                 </div>
 
                 <div class="item-card">
@@ -74,8 +74,8 @@
                         <h3>Vitesse 2x</h3>
                         <p>3s - Vitesse x2</p>
                     </div>
-                    <div class="item-prix">🪙 50</div>
-                    <button class="btn-acheter" data-item="vitesse2" data-prix="50">Acheter</button>
+                    <div class="item-prix">🪙 60</div>
+                    <button class="btn-acheter" data-item="potionVitesse2x" data-prix="60">Acheter</button>
                 </div>
 
                 <div class="item-card">
@@ -84,8 +84,8 @@
                         <h3>Vitesse 2.5x</h3>
                         <p>3s - Vitesse x2.5</p>
                     </div>
-                    <div class="item-prix">🪙 100</div>
-                    <button class="btn-acheter" data-item="vitesse2.5" data-prix="100">Acheter</button>
+                    <div class="item-prix">🪙 110</div>
+                    <button class="btn-acheter" data-item="potionVitesse2_5x" data-prix="110">Acheter</button>
                 </div>
             </div>
         </div>
@@ -100,8 +100,8 @@
                         <h3>Découvreur de Carte</h3>
                         <p>Révèle la carte complète</p>
                     </div>
-                    <div class="item-prix">🪙 70</div>
-                    <button class="btn-acheter" data-item="carte" data-prix="70">Acheter</button>
+                    <div class="item-prix">🪙 80</div>
+                    <button class="btn-acheter" data-item="carteDecouvreur" data-prix="80">Acheter</button>
                 </div>
             </div>
         </div>
@@ -130,9 +130,6 @@
         let pieces = parseInt(localStorage.getItem('pieces')) || 0;
         document.getElementById('pieces-bonus').textContent = pieces;
 
-        // Récupérer l'inventaire
-        let inventaire = JSON.parse(localStorage.getItem('inventaire')) || {};
-
         // Fonction pour acheter un item
         document.querySelectorAll('.btn-acheter').forEach(btn => {
             btn.addEventListener('click', function() {
@@ -146,15 +143,13 @@
                     localStorage.setItem('pieces', pieces.toString());
                     document.getElementById('pieces-bonus').textContent = pieces;
 
-                    // Ajouter à l'inventaire
-                    if (!inventaire[item]) {
-                        inventaire[item] = 0;
-                    }
-                    inventaire[item]++;
-                    localStorage.setItem('inventaire', JSON.stringify(inventaire));
+                    // Ajouter à l'inventaire (localStorage individuel)
+                    let quantite = parseInt(localStorage.getItem(item)) || 0;
+                    quantite++;
+                    localStorage.setItem(item, quantite.toString());
 
                     // Afficher confirmation
-                    document.getElementById('message-achat').textContent = `Vous avez acheté : ${nomItem} !\nQuantité en inventaire : ${inventaire[item]}`;
+                    document.getElementById('message-achat').textContent = `Vous avez acheté : ${nomItem} !\nQuantité en inventaire : ${quantite}`;
                     document.getElementById('modal-achat').style.display = 'flex';
                 } else {
                     // Pas assez de pièces

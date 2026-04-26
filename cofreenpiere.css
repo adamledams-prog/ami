@@ -1,0 +1,805 @@
+/* ===============================================
+   ANIMATION ULTRA STYLÉE COFFRE EN PIERRE
+   =============================================== */
+
+/* Modal coffre pierre - Style sombre et mystérieux AMÉLIORÉ */
+.modal-content.coffre-pierre {
+    background: linear-gradient(135deg, #1a1a1a, #2c2c2c, #1a1a1a);
+    border: 5px solid transparent;
+    background-clip: padding-box;
+    box-shadow: 
+        0 0 50px rgba(160, 160, 160, 0.5),
+        0 30px 80px rgba(0, 0, 0, 0.9),
+        inset 0 0 100px rgba(90, 90, 90, 0.3),
+        inset 0 0 50px rgba(160, 160, 160, 0.2);
+    position: relative;
+    animation: modalPulseGlow 3s ease-in-out infinite;
+}
+
+@keyframes modalPulseGlow {
+    0%, 100% {
+        box-shadow: 
+            0 0 50px rgba(160, 160, 160, 0.5),
+            0 30px 80px rgba(0, 0, 0, 0.9),
+            inset 0 0 100px rgba(90, 90, 90, 0.3);
+    }
+    50% {
+        box-shadow: 
+            0 0 80px rgba(200, 200, 200, 0.8),
+            0 30px 100px rgba(0, 0, 0, 1),
+            inset 0 0 120px rgba(120, 120, 120, 0.5);
+    }
+}
+
+.modal-content.coffre-pierre h2 {
+    color: #d0d0d0;
+    text-shadow: 
+        0 0 20px rgba(160, 160, 160, 0.8),
+        0 0 40px rgba(160, 160, 160, 0.5),
+        0 0 60px rgba(200, 200, 200, 0.3);
+    animation: pierreGlowIntense 2s ease-in-out infinite;
+    font-size: 32px;
+    letter-spacing: 3px;
+}
+
+@keyframes pierreGlowIntense {
+    0%, 100% {
+        text-shadow: 
+            0 0 20px rgba(160, 160, 160, 0.8),
+            0 0 40px rgba(160, 160, 160, 0.5);
+        transform: scale(1);
+    }
+    50% {
+        text-shadow: 
+            0 0 40px rgba(220, 220, 220, 1),
+            0 0 80px rgba(180, 180, 180, 0.8),
+            0 0 120px rgba(160, 160, 160, 0.6);
+        transform: scale(1.05);
+    }
+}
+
+/* Coffre en pierre - Style rocheux ULTRA AMÉLIORÉ */
+.coffre-top-pierre,
+.coffre-bottom-pierre {
+    position: absolute;
+    font-size: 120px;
+    transition: all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    filter: 
+        drop-shadow(0 15px 40px rgba(0, 0, 0, 0.9))
+        drop-shadow(0 0 30px rgba(160, 160, 160, 0.5));
+}
+
+.coffre-top-pierre {
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    transform-origin: bottom center;
+    animation: pierreTrembleIntense 1.2s ease-in-out infinite;
+}
+
+.coffre-bottom-pierre {
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    filter: brightness(0.6) contrast(1.3) drop-shadow(0 10px 30px rgba(0, 0, 0, 0.8));
+}
+
+/* Animation de tremblement ULTRA intense pour le coffre pierre */
+@keyframes pierreTrembleIntense {
+    0%, 100% { 
+        transform: translateX(-50%) rotate(0deg) scale(1);
+        filter: 
+            drop-shadow(0 15px 40px rgba(0, 0, 0, 0.9))
+            drop-shadow(0 0 30px rgba(160, 160, 160, 0.5));
+    }
+    5% { 
+        transform: translateX(-50%) rotate(-10deg) scale(1.08);
+    }
+    10% { 
+        transform: translateX(-50%) rotate(10deg) scale(1.15);
+        filter: 
+            drop-shadow(0 15px 40px rgba(0, 0, 0, 0.9))
+            drop-shadow(0 0 50px rgba(200, 200, 200, 0.8));
+    }
+    15% { 
+        transform: translateX(-50%) rotate(-8deg) scale(1.1);
+    }
+    20% { 
+        transform: translateX(-50%) rotate(12deg) scale(1.18);
+    }
+    25% { 
+        transform: translateX(-50%) rotate(-10deg) scale(1.12);
+    }
+    30% { 
+        transform: translateX(-50%) rotate(8deg) scale(1.15);
+    }
+    35% { 
+        transform: translateX(-50%) rotate(-6deg) scale(1.1);
+    }
+    40% { 
+        transform: translateX(-50%) rotate(10deg) scale(1.2);
+        filter: 
+            drop-shadow(0 15px 40px rgba(0, 0, 0, 0.9))
+            drop-shadow(0 0 60px rgba(220, 220, 220, 1));
+    }
+    45% { - MEGA SPECTACULAIRE */
+.treasure-burst-pierre {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    pointer-events: none;
+    font-size: 50px;
+}
+
+.treasure-burst-pierre::before,
+.treasure-burst-pierre::after {
+    content: '💎✨🪙👻⚡💰';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 40px;
+    white-space: nowrap;
+}
+
+.modal-content.opened .treasure-burst-pierre {
+    opacity: 1;
+    animation: pierreMegaBurst 2s ease-out forwards;
+}
+
+.modal-content.opened .treasure-burst-pierre::before {
+    animation: pierreBurstRing1 2s ease-out forwards;
+}
+
+.modal-content.opened .treasure-burst-pierre::after {
+    animation: pierreBurstRing2 2s ease-out forwards;
+    animation-delay: 0.2s;
+}
+
+@keyframes pierreMegaBurst {
+    0% {
+        transform: translate(-50%, -50%) scale(0) rotate(0deg);
+        opacity: 0;
+        filter: blur(0px);
+    }
+    20% {
+        opacity: 1;
+        filter: blur(0px);
+    }
+    50% {
+        opacity: 1;
+        filter: blur(2px);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(4) rotate(1080deg);
+        opacity: 0;
+        filter: blur(10px);
+    }
+}
+
+@keyframes pierreBurstRing1 {
+    0% {
+        transform: translate(-50%, -50%) scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    30% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(5) rotate(-720deg);
+        opacity: 0;
+    }
+}
+
+@keyframes pierreBurstRing2 {
+    0% {
+        transform: translate(-50%, -50%) scale(0) rotate(0deg);
+        opacity: 0;
+    }
+    30% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(6) rotate(90
+        transform: translateX(-50%) rotate(4deg) scale(1.06);
+    }
+    85% { 
+        transform: translateX(-50%) rotate(-3deg) scale(1.04);
+    }
+    90% { 
+        transform: translateX(-50%) rotate(3deg) scale(1.03);
+    }- AMÉLIORÉ */
+.modal-content.coffre-pierre::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-image: 
+        radial-gradient(3px 3px at 20% 30%, #a0a0a0, transparent),
+        radial-gradient(2px 2px at 60% 70%, #808080, transparent),
+        radial-gradient(4px 4px at 50% 50%, #909090, transparent),
+        radial-gradient(2px 2px at 80% 10%, #b0b0b0, transparent),
+        radial-gradient(3px 3px at 90% 60%, #959595, transparent),
+        radial-gradient(2px 2px at 33% 50%, #a5a5a5, transparent),
+        radial-gradient(4px 4px at 79% 53%, #8a8a8a, transparent),
+        radial-gradient(3px 3px at 15% 85%, #7a7a7a, transparent),
+        radial-gradient(2px 2px at 70% 25%, #c0c0c0, transparent),
+        radial-gradient(4px 4px at 40% 90%, #6a6a6a, transparent);
+    background-size: 150% 150%;
+    background-position: 50% 50%;
+    animation: particulesPierreIntense 3s linear infinite;
+    pointer-events: none;
+    opacity: 0.6;
+    z-index: 1;
+}
+
+@keyframes particulesPierreIntense {
+    0% {
+        background-position: 0% 0%, 100% 100%, 50% 50%, 100% 0%, 0% 100%, 80% 20%, 20% 80%, 60% 40%, 40% 60%, 30% 70%;
+        opacity: 0.6;
+    }
+    25% {
+        background-position: 100% 0%, 0% 100%, 75% 25%, 25% 75%, 50% 50%, 90% 10%, 10% 90%, 70% 30%, 30% 70%, 85% 15%;
+        opacity: 0.8;
+    }
+    50% {
+        background-position: 100% 100%, 0% 0%, 100% 0%, 0% 100%, 75% 25%, 15% 85%, 85% 15%, 55% 45%, 45% 55%, 65% 35%;
+        opacity: 0.7;- MEGA PUISSANT */
+.modal-content.coffre-pierre::after {
+    content: '⚡';
+    position: absolute;
+    font-size: 60px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    animation: eclairPierreUltra 2s ease-in-out infinite;
+    pointer-events: none;
+    text-shadow: 
+        0 0 30px #fff, 
+        0 0 60px #fff, 
+        0 0 90px #00ffff,
+        0 0 120px #00ffff;
+    z-index: 10;
+}
+
+@keyframes eclairPierreUltra {
+    0%, 88%, 100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        filter: brightness(1);
+    }
+    89% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.8) rotate(45deg);
+        filter: brightness(3);
+    }
+    90% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.2) rotate(-45deg);
+    }
+    91% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(2.2)- ULTRA BRILLANT */
+.modal-content.coffre-pierre .light-circle {
+    width: 400px;
+    height: 400px;
+    background: radial-gradient(circle, 
+        rgba(220, 220, 220, 0.6) 0%, 
+        rgba(180, 180, 180, 0.4) 30%,
+        rgba(140, 140, 140, 0.2) 60%,
+        transparent 100%);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulsePierreLightUltra 1.5s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 2;
+}
+
+@keyframes pulsePierreLightUltra {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1) rotate(0deg);
+        opacity: 0.4;
+        filter: blur(20px);
+    }
+    25% {
+        transform: translate(-50%, -50%) scale(1.2) rotate(90deg);
+        opacity: 0.7;
+        filter: blur(15px);
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.5) rotate(180deg);
+        opacity: 0.9;
+        filter: blur(10px);
+    }
+    75% {
+        transform: translate(-50%, -50%) scale(1.3) rotate(270deg);
+        opacity: 0.6;
+        filter: blur(18px)
+}
+
+/* Ondes de choc lors de l'ouverture */
+.modal-content.coffre-pierre.opened::before {
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 200px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border: 5px solid rgba(200, 200, 200, 0.8);
+    border-radius: 50%;
+    animation: shockWave 1.5s ease-out 3;
+    z-index: 5;
+}
+
+@keyframes shockWave {
+    0% {
+        width: 50px;
+        height: 50px;
+        opacity: 1;
+        border-width: 5px;
+    }
+    50% {
+        opacity: 0.6;
+        border-width: 3px;
+    }
+    100% {
+        width: 400px;
+        height: 400px;
+        opacity: 0;
+        border-width: 1px
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    background-image: 
+        radial-gradient(2px 2px at 20% 30%, #808080, transparent),
+        radial-gradient(2px 2px at 60% 70%, #606060, transparent),
+        radial-gradient(3px 3px at 50% 50%, #707070, transparent),
+        radial-gradient(2px 2px at 80% 10%- MEGA BRILLANTS */
+.modal-content.coffre-pierre .ray {
+    background: linear-gradient(to right, 
+        transparent, 
+        rgba(200, 200, 200, 0.6), 
+        rgba(255, 255, 255, 0.8),
+        rgba(200, 200, 200, 0.6),
+        transparent);
+    width: 400px;
+    height: 6px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
+    animation: rayPierreRotateUltra 6s linear infinite;
+    box-shadow: 0 0 20px rgba(200, 200, 200, 0.8);
+    z-index: 3;
+}
+
+.modal-content.coffre-pierre .ray:nth-child(1) { animation-delay: 0s; }
+.modal-content.coffre-pierre .ray:nth-child(2) { animation-delay: -0.75s; }
+.modal-content.coffre-pierre .ray:nth-child(3) { animation-delay: -1.5s; }
+.modal-content.coffre-pierre .ray:nth-child(4) { animation-delay: -2.25s; }
+.modal-content.coffre-pierre .ray:nth-child(5) { animation-delay: -3s; }
+.modal-content.coffre-pierre .ray:nth-child(6) { animation-delay: -3.75s; }
+.modal-content.coffre-pierre .ray:nth-child(7) { animation-delay: -4.5s; }
+.modal-content.coffre-pierre .ray:nth-child(8) { animation-delay: -5.25s; }
+
+@keyframes rayPierreRotateUltra {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+        opacity: 0.3;
+        height: 6px;
+    }
+    25% {
+        opacity: 0.8;
+        height: 8px;
+    }
+    50% {
+        transform: translate(-50%, -50%) rotate(180deg);
+        opacity: 1;
+        height: 10px;
+    }
+    75% {
+        opacity: 0.7;
+        height: 7px;
+    }
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+        opacity: 0.3;
+        height: 6px
+/* Éclairs de foudre autour du coffre pierre */
+.modal-content.coffre-pierre::after {
+    content: '⚡';
+    position: absolute;
+    font-size: 40px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    opacity: 0;
+    animation: eclairPierre 3s ease-in-out infinite;
+    pointer-events: none;
+    text-shadow: 0 0 20px #fff, 0 0 40px #fff, 0 0 60px #fff;
+}
+
+@keyframes eclairPierre {
+    0%, 90%, 100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1);
+    }- EARTHQUAKE MODE */
+.modal-content.coffre-pierre.opened {
+    animation: pierreEarthquake 1.2s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}
+
+@keyframes pierreEarthquake {
+    0%, 100% { 
+        transform: translate(0, 0) rotate(0deg); 
+    }
+    10%, 30%, 50%, 70%, 90% { 
+        transform: translate(-20px, 5px) rotate(-2deg); 
+    }
+    20%, 40%, 60%, 80% { 
+        transform: translate(20px, -5px) rotate(2deg); 
+    }
+    15%, 35%, 55%, 75%, 95% { 
+        transform: translate(-15px, -8px) rotate(-1deg); 
+    }
+    25%, 45%, 65%, 85% { 
+        transform: translate(15px, 8px) rotate(1deg); 
+   
+    96% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.8);
+    }
+    98% {
+        opacity: 0;
+    }
+}
+
+/* Cercle de lumière grise autour du coffre pierre */
+.modal-content.coffre-pierre .light-circle {
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(160, 160, 160, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    animation: pulsePierreLight 2s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes pulsePierreLight {
+    0%, 100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 0.3;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.3);
+        opacity: 0.6;
+    }
+}
+
+/* Rayons de lumière spéciaux pour pierre */
+.modal-content.coffre-pierre .ray {
+    background: linear-gradient(to right, 
+        transparent, 
+        rgba(160, 160, 160, 0.3), 
+        transparent);
+    width: 300px;
+    height: 4px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-origin: center center;
+    animation: rayPierreRotate 8s linear infinite;
+}
+AMÉLIORÉES */
+.modal-content.coffre-pierre .confetti {
+    color: transparent;
+    background: linear-gradient(45deg, #808080, #c0c0c0, #808080);
+    background-clip: text;
+    -webkit-background-clip: text;
+    font-size: 35px;
+    animation: fallConfettiPierreUltra 3.5s ease-in infinite;
+    filter: drop-shadow(0 0 10px rgba(192, 192, 192, 0.8));
+}
+
+@keyframes fallConfettiPierreUltra {
+    0% {
+        top: -15%;
+        opacity: 0;
+        transform: rotate(0deg) scale(0.3) translateX(0);
+        filter: drop-shadow(0 0 10px rgba(192, 192, 192, 0.8));
+    }
+    5% {
+        opacity: 1;
+        transform: rotate(90deg) scale(0.8) translateX(20px);
+    }
+    10% {
+        opacity: 1;
+        transform: rotate(180deg) scale(1.2) translateX(-20px);
+        filter: drop-shadow(0 0 20px rgba(220, 220, 220, 1));
+    }
+    15% {
+        transform: rotate(270deg) scale(1) translateX(15px);
+    }
+    85% {
+        opacity: 1;
+        transform: rotate(720deg) scale(1.5) translateX(-25px);
+        filter: drop-shadow(0 0 25px rgba(200, 200, 200, 0.9));
+    }
+    95% {
+        opacity: 0.5;
+        transform: rotate(900deg) scale(0.8) translateX(30px);
+    }
+    100% {
+        top: 115%;
+        opacity: 0;
+        transform: rotate(1080deg) scale(0.2) translateX(-35px);
+        filter: drop-shadow(0 0 5px rgba(160, 160, 160, 0.3)
+    animation: coinFloat calc(2s + var(--i) * 0.2s) ease-in-out infinite;
+}
+
+@keyframes coinFloat {
+    0%, 100% {
+        transform: translateY(0px) rotate(0deg);
+    }
+    25% {
+        transform: translateY(-20px) rotate(90deg);
+    }
+    50% {
+        transform: translateY(0px) rotate(180deg);
+    }
+    75% {
+        transform: translateY(-15px) rotate(270deg);
+    }
+}
+
+/* Effet de secousse de l'écran lors de l'ouverture pierre */
+.modal-content.coffre-pierre.opened {
+    animation: pierreScreenShake 0.8s ease-in-out;
+}
+
+@keyframes pierreScreenShake {
+    0%, 100% { transform: translate(0, 0); }
+    10%, 30%, 50%, 70%, 90% { transform: translate(-15px, 0); }
+    20%, 40%, 60%, 80% { transform: translate(15px, 0); }
+}
+
+/* Confettis spéciaux pour pierre - Étoiles grises */
+.modal-content.coffre-pierre .confetti {
+    color: #808080;
+    font-size: 28px;
+    animation: fallConfettiPierre 4s ease-in infinite;
+}
+
+@keyframes fallConfettiPierre {
+    0% {
+        top: -10%;
+        opacity: 0;
+        transform: rotate(0deg) scale(0.5);
+    }
+    10% {
+        opacity: 1;
+        transform: rotate(180deg) scale(1);
+    }
+    90% {
+        opacity: 1;
+        transform: rotate(720deg) scale(1.2);
+    }
+    100% {
+        top: 110%;- EPIC */
+.modal-content.coffre-pierre.opened::after {
+    content: '💨💨💨';
+    position: absolute;
+    font-size: 80px;
+    white-space: nowrap;
+    bottom: 20%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    animation: fumeeRocheEpic 2.5s ease-out forwards;
+    filter: blur(0px);
+    z-index: 8;
+}
+
+@keyframes fumeeRocheEpic {
+    0% {
+        transform: translateX(-50%) translateY(0) scale(0.3) rotate(0deg);
+        opacity: 0;
+        filter: blur(0px);
+    }
+    20% {
+        opacity: 0.9;
+        filter: blur(2px);
+    }
+    40% {
+        transform: translateX(-50%) translateY(-60px) scale(1.5) rotate(45deg);
+        opacity: 0.8;
+        filter: blur(5px);
+    }
+    60% {
+        transform: translateX(-50%) translateY(-100px) scale(2.2) rotate(90deg);
+        opacity: 0.6;
+        filter: blur(8px);
+    }
+    80% {
+        transform: translateX(-50%) translateY(-140px) scale(2.8) rotate(135deg);
+        opacity: 0.3;
+        filter: blur(12px);
+    }
+    100% {
+        transform: translateX(-50%) translateY(-180px) scale(3.5) rotate(180deg);
+        opacity: 0;
+        filter: blur(20px);
+    }
+}
+
+/* Étoiles qui explosent dans toutes les directions */
+.modal-content.coffre-pierre.opened .stars-explosion {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 9;
+}
+
+.stars-explosion::before,
+.stars-explosion::after {
+    content: '⭐✨💫🌟';
+    position: absolute;
+    font-size: 30px;
+    top: 50%;
+    left: 50%;
+    animation: starsExplode 2s ease-out forwards;
+}
+
+.stars-explosion::after {
+    animation-delay: 0.3s;
+}
+
+@keyframes starsExplode {
+    0% {
+        transform: translate(-50%, -50%) scale(0);
+        opacity: 0;
+    }
+    30% {
+        opacity: 1;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(8
+    animation: resultPopPierre 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes resultPopPierre {
+    0% {
+        transform: scale(0) rotate(-180deg);
+        opacity: 0;
+    }
+    50% {
+        transform: scale(1.2) rotate(10deg);
+    }
+    100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+    }
+}
+
+/* Bordure lumineuse animée pour le modal pierre - NEON ULTIMATE */
+.modal-content.coffre-pierre {
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-content.coffre-pierre::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+    background: linear-gradient(45deg, 
+        #404040, 
+        #808080, 
+        #d0d0d0, 
+        #ffffff,
+        #d0d0d0,
+        #808080, 
+        #404040,
+        #202020);
+    background-size: 800% 800%;
+    border-radius: 25px;
+    z-index: -1;
+    animation: pierreBorderGlowUltra 2s linear infinite;
+    filter: blur(8px);
+}
+
+@keyframes pierreBorderGlowUltra {
+    0% {
+        background-position: 0% 50%;
+        filter: blur(8px) brightness(1);
+    }
+    25% {
+        background-position: 100% 100%;
+        filter: blur(12px) brightness(1.5);
+    }
+    50% {
+        background-position: 200% 50%;
+        filter: blur(15px) brightness(2);
+    }
+    75% {
+        background-position: 100% 0%;
+        filter: blur(12px) brightness(1.5);
+    }
+    100% {
+        background-position: 0% 50%;
+        filter: blur(8px) brightness(1);
+    }
+}
+
+/* Halo externe pulsant */
+.modal-content.coffre-pierre::after {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: -20px;
+    right: -20px;
+    bottom: -20px;
+    background: radial-gradient(circle, 
+        rgba(200, 200, 200, 0.3) 0%, 
+        rgba(160, 160, 160, 0.2) 30%,
+        transparent 70%);
+    border-radius: 40px;
+    z-index: -2;
+    animation: haloExternePulse 2.5s ease-in-out infinite;
+}
+
+@keyframes haloExternePulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 0.5;
+    }
+    50% {
+        transform: scale(1.1);
+        opacity: 1;
+    }
+}
+
+/* Effet de fumée/poussière pour l'ouverture */
+.modal-content.coffre-pierre.opened::after {
+    content: '💨';
+    position: absolute;
+    font-size: 60px;
+    bottom: 30%;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    animation: fumeeRoche 2s ease-out forwards;
+}
+
+@keyframes fumeeRoche {
+    0% {
+        transform: translateX(-50%) translateY(0) scale(0.5);
+        opacity: 0;
+    }
+    50% {
+        opacity: 0.8;
+    }
+    100% {
+        transform: translateX(-50%) translateY(-100px) scale(2);
+        opacity: 0;
+    }
+}

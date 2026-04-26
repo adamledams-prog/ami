@@ -417,43 +417,52 @@
 
         // Fonction pour afficher l'inventaire
         function afficherInventaire() {
-            const inventaire = JSON.parse(localStorage.getItem('inventaire')) || {};
             const liste = document.getElementById('inventaire-liste');
             
-            // Définir les noms et descriptions des items
-            const itemsInfo = {
-                'invi3': { nom: '👻 Invisibilité 3s', desc: 'Durée : 3 secondes', icon: '👻' },
-                'invi5': { nom: '👻 Invisibilité 5s', desc: 'Durée : 5 secondes', icon: '👻' },
-                'invi7': { nom: '👻 Invisibilité 7s', desc: 'Durée : 7 secondes', icon: '👻' },
-                'vitesse1.5': { nom: '⚡ Vitesse 1.5x', desc: '3s - Vitesse x1.5', icon: '⚡' },
-                'vitesse2': { nom: '⚡ Vitesse 2x', desc: '3s - Vitesse x2', icon: '⚡' },
-                'vitesse2.5': { nom: '⚡ Vitesse 2.5x', desc: '3s - Vitesse x2.5', icon: '⚡' },
-                'carte': { nom: '🗺️ Découvreur de Carte', desc: 'Révèle la carte complète', icon: '🗺️' }
-            };
-
+            // Récupérer les quantités depuis localStorage
+            const potionInvisibilite3s = parseInt(localStorage.getItem('potionInvisibilite3s')) || 0;
+            const potionInvisibilite5s = parseInt(localStorage.getItem('potionInvisibilite5s')) || 0;
+            const potionInvisibilite7s = parseInt(localStorage.getItem('potionInvisibilite7s')) || 0;
+            const potionVitesse1_5x = parseInt(localStorage.getItem('potionVitesse1_5x')) || 0;
+            const potionVitesse2x = parseInt(localStorage.getItem('potionVitesse2x')) || 0;
+            const potionVitesse2_5x = parseInt(localStorage.getItem('potionVitesse2_5x')) || 0;
+            const carteDecouvreur = parseInt(localStorage.getItem('carteDecouvreur')) || 0;
+            
+            // Définir les items avec leurs infos
+            const items = [
+                { quantite: potionInvisibilite3s, nom: 'Invisibilité 3s', desc: 'Durée : 3 secondes', icon: '👻' },
+                { quantite: potionInvisibilite5s, nom: 'Invisibilité 5s', desc: 'Durée : 5 secondes', icon: '👻' },
+                { quantite: potionInvisibilite7s, nom: 'Invisibilité 7s', desc: 'Durée : 7 secondes', icon: '👻' },
+                { quantite: potionVitesse1_5x, nom: 'Vitesse 1.5x', desc: '3s - Vitesse x1.5', icon: '⚡' },
+                { quantite: potionVitesse2x, nom: 'Vitesse 2x', desc: '3s - Vitesse x2', icon: '⚡' },
+                { quantite: potionVitesse2_5x, nom: 'Vitesse 2.5x', desc: '3s - Vitesse x2.5', icon: '⚡' },
+                { quantite: carteDecouvreur, nom: 'Carte Découvreur', desc: 'Révèle la carte complète', icon: '🗺️' }
+            ];
+            
             // Vérifier si l'inventaire est vide
-            if (Object.keys(inventaire).length === 0) {
-                liste.innerHTML = '<div class="inventaire-vide">Votre inventaire est vide.<br>Achetez des objets dans la boutique Bonus !</div>';
+            const totalItems = items.reduce((sum, item) => sum + item.quantite, 0);
+            
+            if (totalItems === 0) {
+                liste.innerHTML = '<div class="inventaire-vide">Votre inventaire est vide.<br>Ouvrez des coffres ou achetez dans la boutique !</div>';
             } else {
                 liste.innerHTML = '';
                 
-                // Afficher chaque item
-                for (const [item, quantite] of Object.entries(inventaire)) {
-                    if (quantite > 0 && itemsInfo[item]) {
-                        const info = itemsInfo[item];
+                // Afficher chaque item qui a une quantité > 0
+                items.forEach(item => {
+                    if (item.quantite > 0) {
                         const itemDiv = document.createElement('div');
                         itemDiv.className = 'inventaire-item';
                         itemDiv.innerHTML = `
-                            <div class="inventaire-icon">${info.icon}</div>
+                            <div class="inventaire-icon">${item.icon}</div>
                             <div class="inventaire-info">
-                                <div class="inventaire-nom">${info.nom}</div>
-                                <div class="inventaire-desc">${info.desc}</div>
+                                <div class="inventaire-nom">${item.nom}</div>
+                                <div class="inventaire-desc">${item.desc}</div>
                             </div>
-                            <div class="inventaire-quantite">×${quantite}</div>
+                            <div class="inventaire-quantite">×${item.quantite}</div>
                         `;
                         liste.appendChild(itemDiv);
                     }
-                }
+                });
             }
             
             document.getElementById('modal-inventaire').style.display = 'flex';

@@ -198,6 +198,12 @@ function endGame(victory, message) {
     canMove = false;
     gameStarted = false;
     
+    // Incrémenter le compteur de parties jouées
+    let partiesJouees = parseInt(localStorage.getItem('partiesJouees')) || 0;
+    partiesJouees++;
+    localStorage.setItem('partiesJouees', partiesJouees.toString());
+    console.log('🎮 Parties jouées:', partiesJouees);
+    
     const titleEl = document.getElementById('game-over-title');
     titleEl.textContent = victory ? 'VICTOIRE' : 'DÉFAITE';
     titleEl.className = victory ? 'victory' : 'defeat';

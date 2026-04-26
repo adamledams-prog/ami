@@ -14,6 +14,20 @@
     <div class="mon-qrcode">
         <div class="qrcode-titre">Mon QR Code</div>
         <div id="qrcode-container"></div>
+        <div class="mon-code-ami">
+            <p style="margin: 10px 0 5px 0; font-size: 12px; color: #666;">Mon code d'ami :</p>
+            <div id="mon-code-affiche" style="font-size: 32px; font-weight: bold; color: #4CAF50; letter-spacing: 5px;"></div>
+            <button onclick="copierCode()" style="margin-top: 8px; padding: 8px 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;">📋 Copier</button>
+        </div>
+    </div>
+
+    <!-- Ajouter un ami par code -->
+    <div class="ajouter-par-code">
+        <h3>➕ Ajouter un ami</h3>
+        <div class="input-group">
+            <input type="text" id="input-code-ami" placeholder="Entrez le code à 3 chiffres" maxlength="3" style="font-size: 20px; text-align: center; letter-spacing: 5px; font-weight: bold;">
+            <button id="btn-ajouter-code" onclick="ajouterParCode()">Ajouter</button>
+        </div>
     </div>
 
     <!-- Bouton lancer partie -->
@@ -139,6 +153,9 @@
 
             // Rendre disponible globalement
             window.monCode = monCode;
+
+            // Afficher le code d'ami
+            document.getElementById('mon-code-affiche').textContent = monCode;
 
             // Récupérer le nom du joueur
             const nomJoueur = localStorage.getItem('nomJoueur') || 'Joueur';
@@ -552,6 +569,81 @@
                 document.getElementById('btn-confirmer-nom').click();
             }
         });
+
+        // Permettre d'appuyer sur Entrée pour ajouter ami par code
+        document.getElementById('input-code-ami').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                ajouterParCode();
+            }
+        });
+
+        // Fonction pour copier le code d'ami
+        function copierCode() {
+            const code = window.monCode;
+            navigator.clipboard.writeText(code).then(() => {
+                alert('✅ Code copié : ' + code);
+            }).catch(() => {
+                // Fallback pour les anciens navigateurs
+                const textarea = document.createElement('textarea');
+                textarea.value = code;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                alert('✅ Code copié : ' + code);
+            });
+        }
+
+        // Fonction pour ajouter un ami par code
+        function ajouterParCode() {
+            const codeInput = document.getElementById('input-code-ami');
+            const codeAmi = codeInput.value.trim();
+            
+            // Vérifications
+            if (!codeAmi) {
+                alert('⚠️ Veuillez entrer un code d\'ami !');
+                return;
+            }
+            
+            if (codeAmi.length !== 3 || !/^\d{3}$/.test(codeAmi)) {
+                alert('⚠️ Le code doit être composé de 3 chiffres !');
+                return;
+            }
+            
+            if (codeAmi === window.monCode) {
+                alert('⚠️ Vous ne pouvez pas vous ajouter vous-même !');
+                codeInput.value = '';
+                return;
+            }
+            
+            // Vérifier si déjà ami
+            const amis = JSON.parse(localStorage.getItem('mesAmis')) || [];
+            const dejaAmi = amis.find(ami => ami.code === codeAmi);
+            
+            if (dejaAmi) {
+                alert('⚠️ Vous êtes déjà ami avec cette personne !');
+                codeInput.value = '';
+                return;
+            }
+            
+            // Envoyer une demande d'ami via Firebase
+            if (window.firebaseReady && window.firebaseDB) {
+                const uniqueId = Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+                const demandeRef = window.firebasePush(window.firebaseRef(window.firebaseDB, 'demandes_ami/' + codeAmi));
+                window.firebaseSet(demandeRef, {
+                    de: window.nomJoueur,
+                    code: window.monCode,
+                    timestamp: Date.now(),
+                    uniqueId: uniqueId
+                });
+                
+                // Confirmation
+                alert('✅ Demande d\'ami envoyée au joueur avec le code ' + codeAmi + ' !\n\nIl recevra votre demande automatiquement. 🎉');
+                codeInput.value = '';
+            } else {
+                alert('❌ Erreur : Firebase non initialisé. Veuillez recharger la page.');
+            }
+        }
     </script>
 </body>
 </html>
