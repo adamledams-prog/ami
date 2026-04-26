@@ -168,6 +168,33 @@
             document.getElementById('modal-erreur').style.display = 'none';
         });
     </script>
+    
+    <!-- Firebase -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-app.js";
+        import { getDatabase, ref, set, onValue, push } from "https://www.gstatic.com/firebasejs/12.12.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyBavSNizC3V3WcyN3snmSlzUMX5s8DYbJM",
+            authDomain: "ami-combat.firebaseapp.com",
+            databaseURL: "https://ami-combat-default-rtdb.asia-southeast1.firebasedatabase.app",
+            projectId: "ami-combat",
+            storageBucket: "ami-combat.firebasestorage.app",
+            messagingSenderId: "902577363403",
+            appId: "1:902577363403:web:70d778cc7dc3e1c519fe4e"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const database = getDatabase(app);
+        
+        window.firebaseDB = database;
+        window.firebaseRef = ref;
+        window.firebaseSet = set;
+        window.firebasePush = push;
+        window.firebaseOnValue = onValue;
+        window.firebaseReady = true;
+    </script>
+    
     <script src="notification-global.js"></script>
 </body>
 </html>

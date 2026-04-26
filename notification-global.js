@@ -4,56 +4,66 @@
 (function() {
     'use strict';
     
-    // Vérifier si Firebase est chargé
-    function attendreFirebase(callback) {
-        if (window.firebaseDB && window.firebaseRef && window.firebaseOnValue) {
-            callback();
-        } else {
-            setTimeout(() => attendreFirebase(callback), 500);
-        }
-    }
-    
-    // Créer la div de notification si elle n'existe pas
-    if (!document.getElementById('notification-partie-global')) {
-        const notifDiv = document.createElement('div');
-        notifDiv.id = 'notification-partie-global';
-        notifDiv.className = 'notification-partie-global';
-        notifDiv.style.display = 'none';
-        notifDiv.innerHTML = `
-            <div class="notif-global-contenu">
-                <p id="notif-global-message"></p>
-                <div id="notif-global-timer" style="font-size: 24px; font-weight: bold; margin: 10px 0;"></div>
-                <div class="notif-global-actions">
-                    <button id="btn-accepter-global" class="btn-accepter">✓ Accepter</button>
-                    <button id="btn-refuser-global" class="btn-refuser">✗ Refuser</button>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(notifDiv);
-    }
-    
-    // Écouter les invitations de partie
-    attendreFirebase(() => {
-        const monCode = localStorage.getItem('monCodeAmi');
-        if (!monCode) return;
-        
-        const invitationsRef = window.firebaseRef(window.firebaseDB, 'invitations_partie/' + monCode);
-        
-        window.firebaseOnValue(invitationsRef, (snapshot) => {
-            const invitations = snapshot.val();
-            if (invitations) {
-                const keys = Object.keys(invitations);
-                const lastKey = keys[keys.length - 1];
-                const lastInvit = invitations[lastKey];
-                
-                const lastSeenInvit = localStorage.getItem('lastSeenInvitPartie');
-                if (lastKey !== lastSeenInvit) {
-                    localStorage.setItem('lastSeenInvitPartie', lastKey);
-                    afficherNotificationGlobale(lastInvit);
-                }
+    // Attendre que le DOM soit chargé
+    function initialiser() {
+        // Vérifier si Firebase est chargé
+        function attendreFirebase(callback) {
+            if (window.firebaseDB && window.firebaseRef && window.firebaseOnValue && window.firebaseSet) {
+                callback();
+            } else {
+                setTimeout(() => attendreFirebase(callback), 500);
             }
+        }
+        
+        // Créer la div de notification si elle n'existe pas
+        if (!document.getElementById('notification-partie-global')) {
+            const notifDiv = document.createElement('div');
+            notifDiv.id = 'notification-partie-global';
+            notifDiv.className = 'notification-partie-global';
+            notifDiv.style.display = 'none';
+            notifDiv.innerHTML = `
+                <div class="notif-global-contenu">
+                    <p id="notif-global-message"></p>
+                    <div id="notif-global-timer" style="font-size: 24px; font-weight: bold; margin: 10px 0;"></div>
+                    <div class="notif-global-actions">
+                        <button id="btn-accepter-global" class="btn-accepter">✓ Accepter</button>
+                        <button id="btn-refuser-global" class="btn-refuser">✗ Refuser</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(notifDiv);
+        }
+        
+        // Écouter les invitations de partie
+        attendreFirebase(() => {
+            const monCode = localStorage.getItem('monCodeAmi');
+            if (!monCode) return;
+            
+            const invitationsRef = window.firebaseRef(window.firebaseDB, 'invitations_partie/' + monCode);
+            
+            window.firebaseOnValue(invitationsRef, (snapshot) => {
+                const invitations = snapshot.val();
+                if (invitations) {
+                    const keys = Object.keys(invitations);
+                    const lastKey = keys[keys.length - 1];
+                    const lastInvit = invitations[lastKey];
+                    
+                    const lastSeenInvit = localStorage.getItem('lastSeenInvitPartie');
+                    if (lastKey !== lastSeenInvit) {
+                        localStorage.setItem('lastSeenInvitPartie', lastKey);
+                        afficherNotificationGlobale(lastInvit);
+                    }
+                }
+            });
         });
-    });
+    }
+    
+    // Appeler l'initialisation quand le DOM est prêt
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initialiser);
+    } else {
+        initialiser();
+    }
     
     // Afficher la notification
     function afficherNotificationGlobale(invitation) {
