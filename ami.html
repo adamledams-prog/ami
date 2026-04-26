@@ -548,7 +548,8 @@
                     });
                 });
 
-                alert(`🎮 Invitation envoyée à ${amis.length} ami(s) !\n\nVos amis vont recevoir une notification.`);
+                // Rediriger directement vers la partie
+                window.location.href = 'game.html';
             } else {
                 alert('Erreur : Firebase non initialisé. Rechargez la page.');
             }

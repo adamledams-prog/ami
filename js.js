@@ -84,8 +84,6 @@ menuBtns.forEach(btn => {
             window.location.href = 'quete.html';
         } else if (this.textContent === 'Ma base') {
             window.location.href = 'base.html';
-        } else if (this.textContent === '� Coffre Pierre') {
-            window.location.href = 'cofre.html';
         }
     });
 });
