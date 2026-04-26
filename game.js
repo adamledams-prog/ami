@@ -224,8 +224,29 @@ function startGame() {
             
             // Synchro Firebase
             syncToFirebase();
+            
+            // Vérifier après 5 secondes s'il reste 1 seul joueur
+            setTimeout(() => {
+                verifierJoueurUnique();
+            }, 5000);
         }
     }, 1000);
+}
+
+// Vérifier si le joueur est seul dans la partie
+function verifierJoueurUnique() {
+    if (!gameStarted || !player.alive) return;
+    
+    const autresJoueursActifs = Object.values(otherPlayers).filter(p => {
+        // Vérifier que le joueur est vivant et connecté récemment (moins de 10s)
+        const estRecent = p.timestamp && (Date.now() - p.timestamp) < 10000;
+        return p.alive && estRecent;
+    });
+    
+    // Si aucun autre joueur actif, victoire par défaut
+    if (autresJoueursActifs.length === 0) {
+        endGame(true, 'Vous êtes le seul joueur ! Victoire par défaut ! 🎉');
+    }
 }
 
 // Synchroniser avec Firebase
