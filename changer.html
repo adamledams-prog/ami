@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Changer d'appareil - Battle Royale</title>
+    <link rel="stylesheet" href="changer.css">
+</head>
+<body>
+    <div class="changer-container">
+        <!-- Bouton retour -->
+        <button class="btn-retour" onclick="window.location.href='index.html'">
+            ← Retour
+        </button>
+        
+        <!-- Robot Pixi -->
+        <div class="robot-container">
+            <div class="robot">🤖</div>
+        </div>
+        
+        <!-- Bulle de dialogue -->
+        <div class="dialogue-box">
+            <p id="dialogue-text">Sur quel appareil veux-tu jouer maintenant ?</p>
+        </div>
+        
+        <!-- Appareil actuel -->
+        <div class="appareil-actuel" id="appareil-actuel">
+            <p class="label-actuel">Actuellement :</p>
+            <div class="badge-actuel">
+                <span class="icon-actuel" id="icon-actuel"></span>
+                <span class="text-actuel" id="text-actuel"></span>
+            </div>
+        </div>
+        
+        <!-- Choix des appareils -->
+        <div class="choix-appareil-container">
+            <button class="btn-appareil" id="btn-ordinateur">
+                <span class="icon-appareil">💻</span>
+                <span class="text-appareil">Ordinateur</span>
+                <span class="check-appareil" id="check-ordinateur">✓</span>
+            </button>
+            <button class="btn-appareil" id="btn-telephone">
+                <span class="icon-appareil">📱</span>
+                <span class="text-appareil">Téléphone</span>
+                <span class="check-appareil" id="check-telephone">✓</span>
+            </button>
+        </div>
+        
+        <!-- Message de confirmation -->
+        <div class="message-confirmation" id="message-confirmation">
+            ✅ Appareil changé avec succès !
+        </div>
+    </div>
+    
+    <script src="changer.js"></script>
+</body>
+</html>

@@ -76,6 +76,21 @@ window.addEventListener('DOMContentLoaded', function() {
             document.getElementById('nom-affiche').style.background = couleurSauvee;
         }
     }
+    
+    // Afficher le type d'appareil
+    const typeAppareil = localStorage.getItem('typeAppareil');
+    const appareilIcon = document.getElementById('appareil-icon');
+    const appareilText = document.getElementById('appareil-text');
+    
+    if (typeAppareil && appareilIcon && appareilText) {
+        if (typeAppareil === 'ordinateur') {
+            appareilIcon.textContent = '💻';
+            appareilText.textContent = 'Ordinateur';
+        } else if (typeAppareil === 'telephone') {
+            appareilIcon.textContent = '📱';
+            appareilText.textContent = 'Téléphone';
+        }
+    }
 });
 
 // Fonction pour afficher un message du robot
