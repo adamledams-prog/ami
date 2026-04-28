@@ -1,75 +1,105 @@
-/* Notification globale de partie en haut de l'écran */
+/* Notification globale - Design ultra moderne avec glassmorphism */
 .notification-partie-global {
     position: fixed;
-    top: 20px;
+    top: 25px;
     left: 50%;
     transform: translateX(-50%);
-    background: linear-gradient(135deg, #667eea, #764ba2);
+    background: linear-gradient(135deg, rgba(102, 126, 234, 0.4), rgba(118, 75, 162, 0.4));
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
     color: white;
-    padding: 20px 30px;
-    border-radius: 15px;
-    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.7);
+    padding: 25px 40px;
+    border-radius: 25px;
+    border: 4px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 
+        0 15px 50px rgba(102, 126, 234, 0.8),
+        inset 0 2px 0 rgba(255, 255, 255, 0.5),
+        0 0 80px rgba(102, 126, 234, 0.9);
     z-index: 10000;
-    min-width: 350px;
+    min-width: 400px;
     text-align: center;
-    animation: slideDown 0.5s ease-out;
+    animation: slideDown 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
 @keyframes slideDown {
     from {
-        transform: translateX(-50%) translateY(-100px);
+        transform: translateX(-50%) translateY(-150px) scale(0.8);
         opacity: 0;
     }
     to {
-        transform: translateX(-50%) translateY(0);
+        transform: translateX(-50%) translateY(0) scale(1);
         opacity: 1;
     }
 }
 
 .notif-global-contenu p {
-    font-size: 18px;
-    font-weight: bold;
-    margin: 0 0 10px 0;
+    font-size: 20px;
+    font-weight: 900;
+    margin: 0 0 15px 0;
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.9), 0 0 30px rgba(255, 255, 255, 0.4);
+    letter-spacing: 1px;
 }
 
 .notif-global-actions {
     display: flex;
-    gap: 12px;
-    margin-top: 12px;
+    gap: 15px;
+    margin-top: 15px;
     justify-content: center;
 }
 
 .notif-global-actions .btn-accepter,
 .notif-global-actions .btn-refuser {
-    padding: 10px 25px;
-    font-size: 15px;
-    font-weight: bold;
+    padding: 14px 32px;
+    font-size: 17px;
+    font-weight: 900;
     border: none;
-    border-radius: 8px;
+    border-radius: 18px;
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9);
+    letter-spacing: 1px;
 }
 
 .notif-global-actions .btn-accepter {
-    background: linear-gradient(135deg, #00cc00, #009900);
+    background: linear-gradient(135deg, rgba(0, 204, 0, 0.4), rgba(0, 153, 0, 0.4));
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
     color: white;
-    box-shadow: 0 4px 10px rgba(0, 200, 0, 0.4);
+    border: 3px solid rgba(0, 255, 0, 0.6);
+    box-shadow: 
+        0 8px 25px rgba(0, 204, 0, 0.6),
+        inset 0 2px 0 rgba(255, 255, 255, 0.4),
+        0 0 50px rgba(0, 204, 0, 0.7);
 }
 
 .notif-global-actions .btn-accepter:hover {
-    background: linear-gradient(135deg, #009900, #006600);
-    transform: translateY(-2px);
+    transform: translateY(-5px) scale(1.08);
+    border-color: rgba(0, 255, 0, 1);
+    box-shadow: 
+        0 12px 35px rgba(0, 255, 0, 0.8),
+        inset 0 2px 0 rgba(255, 255, 255, 0.6),
+        0 0 80px rgba(0, 255, 0, 1);
 }
 
 .notif-global-actions .btn-refuser {
-    background: linear-gradient(135deg, #ff4444, #cc0000);
+    background: linear-gradient(135deg, rgba(255, 68, 68, 0.4), rgba(204, 0, 0, 0.4));
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
     color: white;
-    box-shadow: 0 4px 10px rgba(255, 0, 0, 0.4);
+    border: 3px solid rgba(255, 0, 0, 0.6);
+    box-shadow: 
+        0 8px 25px rgba(255, 0, 0, 0.6),
+        inset 0 2px 0 rgba(255, 255, 255, 0.4),
+        0 0 50px rgba(255, 0, 0, 0.7);
 }
 
 .notif-global-actions .btn-refuser:hover {
-    background: linear-gradient(135deg, #cc0000, #990000);
-    transform: translateY(-2px);
+    transform: translateY(-5px) scale(1.08);
+    border-color: rgba(255, 0, 0, 1);
+    box-shadow: 
+        0 12px 35px rgba(255, 0, 0, 0.8),
+        inset 0 2px 0 rgba(255, 255, 255, 0.6),
+        0 0 80px rgba(255, 0, 0, 1);
 }
 
 /* Responsive mobile */

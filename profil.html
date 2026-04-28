@@ -377,6 +377,25 @@
     </style>
 </head>
 <body>
+    <!-- Robot Pixi guide -->
+    <div class="robot-guide" style="position: fixed; bottom: 20px; right: 20px; width: 55px; height: 55px; display: flex; align-items: center; justify-content: center; background: rgba(255, 255, 255, 0.95); border-radius: 50%; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3); z-index: 1000; animation: float 3s ease-in-out infinite;">
+        <div class="robot-icon" style="font-size: 35px;">🤖</div>
+    </div>
+    
+    <!-- Message du robot -->
+    <div id="robot-message-profil" style="position: fixed; top: 90px; left: 50%; transform: translateX(-50%) translateY(-150%); background: white; padding: 15px 25px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); z-index: 999; font-size: 16px; color: #333; font-weight: 500; transition: transform 0.5s ease-out; max-width: 400px; text-align: center;"></div>
+    
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .show-message {
+            transform: translateX(-50%) translateY(0) !important;
+        }
+    </style>
+    
     <button class="btn-retour" onclick="window.location.href='index.html'">← Retour</button>
 
     <div class="profil-header">
@@ -538,5 +557,30 @@
     </script>
     
     <script src="notification-global.js"></script>
+    
+    <!-- Script pour afficher le message du robot -->
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            // Vérifier si c'est la première fois sur Profil
+            const aVuProfil = localStorage.getItem('aVuProfil');
+            
+            if (!aVuProfil) {
+                // Afficher le message après un court délai
+                setTimeout(() => {
+                    const messageEl = document.getElementById('robot-message-profil');
+                    messageEl.textContent = 'Choisis ton fond d\'écran';
+                    messageEl.classList.add('show-message');
+                    
+                    // Masquer le message après 5 secondes
+                    setTimeout(() => {
+                        messageEl.classList.remove('show-message');
+                        
+                        // Marquer comme vu
+                        localStorage.setItem('aVuProfil', 'true');
+                    }, 5000);
+                }, 500);
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,3 +1,11 @@
+// Redirection vers le tutoriel si première visite
+if (!localStorage.getItem('tutorielFait') || localStorage.getItem('tutorielFait') !== 'true') {
+    // Si on n'est pas déjà sur la page tutoriel
+    if (!window.location.pathname.includes('tutoriel.html')) {
+        window.location.href = 'tutoriel.html';
+    }
+}
+
 // Initialiser les pièces
 let pieces = parseInt(localStorage.getItem('pieces')) || 0;
 if (document.getElementById('pieces')) {
@@ -70,11 +78,31 @@ window.addEventListener('DOMContentLoaded', function() {
     }
 });
 
+// Fonction pour afficher un message du robot
+function afficherMessageRobot(message, duree = 3000) {
+    const messageEl = document.getElementById('robot-message');
+    if (messageEl) {
+        messageEl.textContent = message;
+        messageEl.classList.add('show');
+        
+        setTimeout(() => {
+            messageEl.classList.remove('show');
+        }, duree);
+    }
+}
+
 // Gestion des boutons du menu
 const menuBtns = document.querySelectorAll('.menu-btn');
 menuBtns.forEach(btn => {
     btn.addEventListener('click', function() {
         if (this.textContent === 'Profil') {
+            // Marquer que l'utilisateur a vu le profil (désactive le mode tutoriel)
+            localStorage.setItem('aVuProfil', 'true');
+            
+            // Désactiver le mode tutoriel
+            document.body.classList.remove('tutorial-mode');
+            
+            // Rediriger directement sans message
             window.location.href = 'profil.html';
         } else if (this.textContent === 'Bonus') {
             window.location.href = 'bonus.html';
@@ -86,4 +114,33 @@ menuBtns.forEach(btn => {
             window.location.href = 'base.html';
         }
     });
+});
+
+// Activer le mode tutoriel au chargement
+window.addEventListener('load', () => {
+    // Vérifier si c'est la première visite après le tutoriel
+    const premiereFoisIndex = !localStorage.getItem('aVuProfil');
+    
+    if (premiereFoisIndex) {
+        // Activer le mode blur
+        document.body.classList.add('tutorial-mode');
+        
+        // Afficher le message du robot
+        const robotMessage = document.getElementById('robot-message');
+        if (robotMessage) {
+            const nomJoueur = localStorage.getItem('nomJoueur') || 'champion';
+            robotMessage.textContent = `${nomJoueur}, clique sur PROFIL pour voir ton compte ! 👆`;
+            setTimeout(() => {
+                robotMessage.classList.add('show');
+            }, 500);
+        }
+        
+        // Entourer le bouton Profil
+        const profilBtn = document.querySelector('.menu-btn');
+        if (profilBtn && profilBtn.textContent === 'Profil') {
+            setTimeout(() => {
+                profilBtn.classList.add('highlight');
+            }, 500);
+        }
+    }
 });

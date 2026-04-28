@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoriel - Battle Royale</title>
+    <link rel="stylesheet" href="tutoriel.css">
+</head>
+<body>
+    <div class="tutoriel-container">
+        <!-- Robot Pixi -->
+        <div class="robot-container">
+            <div class="robot">🤖</div>
+        </div>
+        
+        <!-- Bulle de dialogue -->
+        <div class="dialogue-box">
+            <p id="dialogue-text"></p>
+        </div>
+        
+        <!-- Zone de saisie du nom (caché au début) -->
+        <div class="nom-container" id="nom-container" style="display: none;">
+            <input type="text" id="nom-input" placeholder="Entrez votre nom" maxlength="15">
+            <button id="valider-btn">Valider</button>
+        </div>
+    </div>
+    
+    <script src="tutoriel.js"></script>
+</body>
+</html>

@@ -12,8 +12,58 @@ body {
         #0000ff, #4b0082, #9400d3);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
-    font-family: Arial, sans-serif;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow: hidden;
+    position: relative;
+}
+
+/* Particules flottantes en arrière-plan */
+body::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: 
+        radial-gradient(2px 2px at 20% 30%, white, transparent),
+        radial-gradient(2px 2px at 60% 70%, white, transparent),
+        radial-gradient(3px 3px at 50% 50%, white, transparent),
+        radial-gradient(2px 2px at 80% 10%, white, transparent),
+        radial-gradient(3px 3px at 90% 60%, white, transparent),
+        radial-gradient(2px 2px at 33% 50%, white, transparent),
+        radial-gradient(3px 3px at 79% 53%, white, transparent),
+        radial-gradient(2px 2px at 70% 25%, white, transparent);
+    background-size: 200% 200%;
+    animation: particlesFloat 20s linear infinite;
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+@keyframes particlesFloat {
+    0% { background-position: 0% 0%, 100% 100%, 50% 50%, 100% 0%, 0% 100%, 80% 20%, 20% 80%, 60% 40%; }
+    100% { background-position: 100% 100%, 0% 0%, 75% 25%, 25% 75%, 50% 50%, 90% 10%, 10% 90%, 40% 60%; }
+}
+
+/* Effet de brillance qui traverse l'écran */
+body::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent 30%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 70%
+    );
+    animation: shineAcross 8s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes shineAcross {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
 }
 
 @keyframes gradient {
@@ -26,13 +76,50 @@ body {
     position: absolute;
     top: 20px;
     left: 20px;
-    background: rgba(255, 255, 255, 0.9);
-    padding: 15px 25px;
-    border-radius: 10px;
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    padding: 18px 30px;
+    border-radius: 20px;
+    font-size: 28px;
+    font-weight: 900;
+    color: #fff;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.37),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        0 0 20px rgba(255, 215, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    animation: floatGently 3s ease-in-out infinite, glowPulse 2s ease-in-out infinite;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 215, 0, 0.8);
+}
+
+.compteur-pieces:hover {
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        0 0 40px rgba(255, 215, 0, 0.9);
+}
+
+@keyframes floatGently {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-8px); }
+}
+
+@keyframes glowPulse {
+    0%, 100% { 
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.37),
+            inset 0 1px 0 rgba(255, 255, 255, 0.5),
+            0 0 20px rgba(255, 215, 0, 0.5);
+    }
+    50% { 
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.37),
+            inset 0 1px 0 rgba(255, 255, 255, 0.7),
+            0 0 35px rgba(255, 215, 0, 0.9);
+    }
 }
 
 .menu-nom {
@@ -43,64 +130,152 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 15px;
+    animation: slideInRight 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
 }
 
 #nom {
-    padding: 15px 20px;
-    font-size: 20px;
-    border: none;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    padding: 18px 25px;
+    font-size: 22px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(15px) saturate(180%);
+    -webkit-backdrop-filter: blur(15px) saturate(180%);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.37),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
     text-align: center;
-    min-width: 250px;
+    min-width: 280px;
+    color: #fff;
+    font-weight: 700;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+#nom::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+    font-weight: 600;
 }
 
 #nom:focus {
-    outline: 3px solid #fff;
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.2);
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.6),
+        0 0 30px rgba(255, 255, 255, 0.5);
 }
 
 #valider {
-    padding: 15px 40px;
+    padding: 18px 50px;
     font-size: 20px;
-    font-weight: bold;
-    border: none;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
+    font-weight: 900;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: #fff;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.37),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    position: relative;
+    overflow: hidden;
+}
+
+#valider::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
 }
 
 #valider:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        0 0 40px rgba(255, 255, 255, 0.8);
+}
+
+#valider:hover::before {
+    left: 100%;
 }
 
 #valider:active {
-    transform: scale(0.95);
+    transform: translateY(-2px) scale(1.02);
 }
 
 .nom-affiche {
-    padding: 15px 20px;
-    font-size: 20px;
-    font-weight: bold;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    padding: 18px 30px;
+    font-size: 24px;
+    font-weight: 900;
+    border-radius: 20px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.25), rgba(255, 255, 255, 0.15));
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.37),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        0 0 30px rgba(255, 255, 255, 0.5);
     cursor: pointer;
     color: #fff;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-    min-width: 250px;
+    text-shadow: 
+        0 2px 10px rgba(0, 0, 0, 0.7),
+        0 0 20px rgba(255, 255, 255, 0.3);
+    min-width: 280px;
     text-align: center;
-    transition: all 0.3s;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    animation: nameGlow 3s ease-in-out infinite;
+    letter-spacing: 1px;
+}
+
+@keyframes nameGlow {
+    0%, 100% {
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.37),
+            inset 0 1px 0 rgba(255, 255, 255, 0.5),
+            0 0 30px rgba(255, 255, 255, 0.5);
+    }
+    50% {
+        box-shadow: 
+            0 8px 32px rgba(0, 0, 0, 0.37),
+            inset 0 1px 0 rgba(255, 255, 255, 0.7),
+            0 0 50px rgba(255, 255, 255, 0.8);
+    }
 }
 
 .nom-affiche:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.05);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.35), rgba(255, 255, 255, 0.25));
+    transform: translateY(-5px) scale(1.05);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        0 0 50px rgba(255, 255, 255, 0.9);
 }
 
 .menu-gauche {
@@ -110,30 +285,78 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    animation: slideInLeft 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes slideInLeft {
+    from {
+        opacity: 0;
+        transform: translateX(-100px) scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+    }
 }
 
 .menu-btn {
-    padding: 15px 30px;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.9);
-    color: #333;
+    padding: 14px 30px;
+    font-size: 17px;
+    font-weight: 900;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 18px;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.1));
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    color: #fff;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s;
-    min-width: 150px;
+    box-shadow: 
+        0 8px 32px rgba(0, 0, 0, 0.37),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5);
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    min-width: 160px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+    position: relative;
+    overflow: hidden;
+}
+
+.menu-btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.2);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.menu-btn:hover::before {
+    width: 300px;
+    height: 300px;
 }
 
 .menu-btn:hover {
-    background: rgba(255, 255, 255, 1);
-    transform: scale(1.05);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.2));
+    transform: translateY(-8px) translateX(8px) scale(1.08);
+    box-shadow: 
+        0 12px 40px rgba(0, 0, 0, 0.5),
+        inset 0 1px 0 rgba(255, 255, 255, 0.7),
+        -8px 8px 0 rgba(0, 0, 0, 0.2),
+        0 0 40px rgba(255, 255, 255, 0.6);
+    border-color: rgba(255, 255, 255, 0.5);
 }
 
 .menu-btn:active {
-    transform: scale(0.95);
+    transform: translateY(-5px) translateX(5px) scale(1.05);
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.5),
+        -5px 5px 0 rgba(0, 0, 0, 0.15);
 }
 
 /* Responsive pour mobile */
@@ -178,5 +401,79 @@ body {
         padding: 10px 20px;
         font-size: 14px;
         min-width: 100px;
+    }
+}
+
+/* ========================================
+   MODE TUTORIEL - TOUT FLOU SAUF PROFIL
+   ======================================== */
+
+/* Effet de flou sur TOUS les éléments pendant le tutoriel */
+body.tutorial-mode .compteur-pieces,
+body.tutorial-mode .menu-nom,
+body.tutorial-mode .menu-droite,
+body.tutorial-mode .menu-gauche .menu-btn:not(:first-child) {
+    filter: blur(12px) brightness(0.6);
+    pointer-events: none;
+    user-select: none;
+    transition: all 0.5s ease;
+}
+
+/* Le bouton Profil reste net et lumineux */
+body.tutorial-mode .menu-gauche .menu-btn:first-child {
+    filter: none !important;
+    pointer-events: auto;
+    z-index: 10000;
+    position: relative;
+    animation: highlightProfileButton 2s ease-in-out infinite;
+    box-shadow: 
+        0 0 0 4px rgba(255, 215, 0, 0.8),
+        0 0 40px rgba(255, 215, 0, 0.9),
+        0 10px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Animation de mise en évidence du bouton Profil */
+@keyframes highlightProfileButton {
+    0%, 100% {
+        box-shadow: 
+            0 0 0 4px rgba(255, 215, 0, 0.8),
+            0 0 40px rgba(255, 215, 0, 0.9),
+            0 10px 40px rgba(0, 0, 0, 0.5);
+        transform: scale(1);
+    }
+    50% {
+        box-shadow: 
+            0 0 0 8px rgba(255, 215, 0, 1),
+            0 0 0 16px rgba(255, 215, 0, 0.4),
+            0 0 60px rgba(255, 215, 0, 1.2),
+            0 15px 50px rgba(0, 0, 0, 0.6);
+        transform: scale(1.08);
+    }
+}
+
+/* Overlay sombre pour mieux isoler le profil */
+body.tutorial-mode::after {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+        circle at 20% 50%, 
+        rgba(0, 0, 0, 0.3) 0%, 
+        rgba(0, 0, 0, 0.7) 100%
+    );
+    pointer-events: none;
+    z-index: 50;
+    animation: overlayPulse 3s ease-in-out infinite;
+}
+
+@keyframes overlayPulse {
+    0%, 100% {
+        opacity: 0.5;
+    }
+    50% {
+        opacity: 0.7;
     }
 }
