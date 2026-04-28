@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoriel Mobile - Battle Royale</title>
+    <link rel="stylesheet" href="telephone.css">
+</head>
+<body>
+    <div class="tuto-mobile-container">
+        <!-- Robot Pixi -->
+        <div class="robot-container">
+            <div class="robot">🤖</div>
+        </div>
+        
+        <!-- Bulle de dialogue -->
+        <div class="dialogue-box">
+            <p id="dialogue-text"></p>
+        </div>
+        
+        <!-- Zone de démonstration -->
+        <div class="demo-container" id="demo-container" style="display: none;">
+            <!-- Illustration du joystick -->
+            <div class="joystick-demo">
+                <div class="joystick-base">
+                    <div class="joystick-stick">👆</div>
+                </div>
+                <p class="demo-text">🕹️ Déplace-toi avec le joystick tactile</p>
+                <p class="demo-subtext">Glisse ton doigt dans toutes les directions !</p>
+            </div>
+            
+            <!-- Illustration du bouton d'attaque -->
+            <div class="attack-demo">
+                <button class="attack-btn-demo">⚔️ ATTAQUE</button>
+                <p class="demo-text">💀 Si tu es le MEURTRIER, appuie ici !</p>
+                <p class="demo-subtext">Élimine tous les innocents pour gagner</p>
+            </div>
+        </div>
+        
+        <!-- Bouton pour continuer -->
+        <button class="btn-continuer" id="btn-continuer" style="display: none;">
+            Compris ! 👍
+        </button>
+    </div>
+    
+    <script src="telephone.js"></script>
+</body>
+</html>

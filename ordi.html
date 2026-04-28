@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tutoriel PC - Battle Royale</title>
+    <link rel="stylesheet" href="ordi.css">
+</head>
+<body>
+    <div class="tuto-pc-container">
+        <!-- Robot Pixi -->
+        <div class="robot-container">
+            <div class="robot">🤖</div>
+        </div>
+        
+        <!-- Bulle de dialogue -->
+        <div class="dialogue-box">
+            <p id="dialogue-text"></p>
+        </div>
+        
+        <!-- Zone de démonstration -->
+        <div class="demo-container" id="demo-container" style="display: none;">
+            <!-- Illustration du clavier -->
+            <div class="keyboard-demo">
+                <div class="keyboard-keys">
+                    <div class="key">↑</div>
+                    <div class="key-row">
+                        <div class="key">←</div>
+                        <div class="key">↓</div>
+                        <div class="key">→</div>
+                    </div>
+                </div>
+                <p class="demo-text">⌨️ Déplace-toi avec les FLÈCHES du clavier</p>
+                <p class="demo-subtext">↑ ↓ ← → pour explorer le labyrinthe</p>
+            </div>
+            
+            <!-- Illustration du clic souris -->
+            <div class="mouse-demo">
+                <div class="mouse-icon">🖱️</div>
+                <button class="attack-btn-demo">⚔️ ATTAQUE</button>
+                <p class="demo-text">💀 Si tu es le MEURTRIER, clique ici !</p>
+                <p class="demo-subtext">Utilise ta souris pour attaquer les innocents</p>
+            </div>
+        </div>
+        
+        <!-- Bouton pour continuer -->
+        <button class="btn-continuer" id="btn-continuer" style="display: none;">
+            Compris ! 👍
+        </button>
+    </div>
+    
+    <script src="ordi.js"></script>
+</body>
+</html>

@@ -94,16 +94,60 @@ function validerNom() {
     // Cacher l'input
     nomContainer.style.display = 'none';
     
-    // Message final
-    const messageFinal = `Super ${nom}, on commence.`;
-    typeWriter(messageFinal, () => {
-        // Attendre 1.5 secondes puis rediriger
+    // Message pour choisir l'appareil
+    const messageChoix = `Super ${nom} ! Tu joues sur ordinateur 💻 ou téléphone 📱 ?`;
+    typeWriter(messageChoix, () => {
+        // Afficher les boutons de choix après 500ms
         setTimeout(() => {
-            // Redirection directe sans animation
-            window.location.href = 'index.html';
-        }, 1500);
+            document.getElementById('choix-appareil-container').style.display = 'flex';
+        }, 500);
     });
 }
+
+// Gestion du choix de l'appareil
+document.getElementById('btn-ordinateur').addEventListener('click', () => {
+    // Sauvegarder le choix
+    localStorage.setItem('typeAppareil', 'ordinateur');
+    
+    // Cacher les boutons avec animation
+    const choixContainer = document.getElementById('choix-appareil-container');
+    choixContainer.style.opacity = '0';
+    choixContainer.style.transform = 'scale(0.8)';
+    
+    setTimeout(() => {
+        choixContainer.style.display = 'none';
+        
+        // Message de confirmation
+        const messageOrdi = "Excellent choix ! 💻 Je vais te montrer comment dominer avec le clavier et la souris !";
+        typeWriter(messageOrdi, () => {
+            setTimeout(() => {
+                window.location.href = 'ordi.html';
+            }, 1800);
+        });
+    }, 300);
+});
+
+document.getElementById('btn-telephone').addEventListener('click', () => {
+    // Sauvegarder le choix
+    localStorage.setItem('typeAppareil', 'telephone');
+    
+    // Cacher les boutons avec animation
+    const choixContainer = document.getElementById('choix-appareil-container');
+    choixContainer.style.opacity = '0';
+    choixContainer.style.transform = 'scale(0.8)';
+    
+    setTimeout(() => {
+        choixContainer.style.display = 'none';
+        
+        // Message de confirmation
+        const messageTel = "Excellent choix ! 📱 Je vais te montrer comment devenir un champion du tactile !";
+        typeWriter(messageTel, () => {
+            setTimeout(() => {
+                window.location.href = 'telephone.html';
+            }, 1800);
+        });
+    }, 300);
+});
 
 // Démarrer au chargement de la page (toujours afficher le tuto pour voir l'évolution)
 window.addEventListener('DOMContentLoaded', () => {
