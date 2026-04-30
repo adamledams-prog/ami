@@ -443,7 +443,21 @@ function endGame(victory, message) {
     titleEl.textContent = victory ? 'VICTOIRE' : 'DÉFAITE';
     titleEl.className = victory ? 'victory' : 'defeat';
     
-    document.getElementById('game-over-message').textContent = message;
+    // Calculer le classement si défaite
+    let rankingText = '';
+    if (!victory) {
+        // Compter les joueurs encore vivants et morts
+        const totalPlayers = Object.keys(otherPlayers).length + 1; // +1 pour nous
+        const alivePlayers = Object.values(otherPlayers).filter(p => p.alive).length;
+        const deadPlayers = totalPlayers - alivePlayers; // Nous sommes morts, donc inclus dans deadPlayers
+        
+        // Notre position = nombre de joueurs vivants + 1 (on est mort)
+        const ourPosition = alivePlayers + 1;
+        
+        rankingText = `\n\n📊 Ta place: ${ourPosition}/${totalPlayers}`;
+    }
+    
+    document.getElementById('game-over-message').textContent = message + rankingText;
     document.getElementById('game-over-screen').style.display = 'flex';
 }
 
