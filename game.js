@@ -293,16 +293,25 @@ function syncToFirebase() {
         
         // Écrire périodiquement la position et l'état
         setInterval(() => {
-            window.firebaseSet(playerRef, {
-                name: playerName,
-                x: invisible ? -9999 : player.x,  // Cacher la position si invisible
-                y: invisible ? -9999 : player.y,
-                role: playerRole,
-                alive: player.alive,
-                invisible: invisible,
-                timestamp: Date.now()
-            });
+            if (gameStarted && canMove) {
+                window.firebaseSet(playerRef, {
+                    name: playerName,
+                    x: invisible ? -9999 : player.x,  // Cacher la position si invisible
+                    y: invisible ? -9999 : player.y,
+                    role: playerRole,
+                    alive: player.alive,
+                    invisible: invisible,
+                    timestamp: Date.now()
+                });
+            }
         }, 100);
+        
+        // Vérification périodique des victoires (toutes les 500ms)
+        setInterval(() => {
+            if (gameStarted && canMove) {
+                updatePlayersCount();
+            }
+        }, 500);
     }
 }
 
@@ -313,14 +322,42 @@ function updatePlayersCount() {
     document.getElementById('players-alive').textContent = `👥 ${alive}/${total}`;
     
     // Vérifier victoire/défaite
-    if (gameStarted && canMove) {
+    if (gameStarted && canMove && player.alive) {
+        const autresVivants = Object.values(otherPlayers).filter(p => p.alive);
+        const autresInnocentsVivants = autresVivants.filter(p => p.role === 'innocent');
+        const meurtriersVivants = autresVivants.filter(p => p.role === 'murderer');
+        
+        // Cas 1: Je suis mort
         if (!player.alive) {
             endGame(false, 'Vous avez été éliminé !');
-        } else if (playerRole === 'murderer' && alive === 1) {
-            endGame(true, 'Tous les innocents ont été éliminés !');
-        } else if (playerRole === 'innocent' && Object.values(otherPlayers).filter(p => p.role === 'murderer' && p.alive).length === 0) {
-            endGame(true, 'Le meurtrier a été éliminé !');
+            return;
         }
+        
+        // Cas 2: Je suis le meurtrier et tous les innocents sont morts
+        if (playerRole === 'murderer') {
+            if (autresInnocentsVivants.length === 0 && autresVivants.length >= 0) {
+                endGame(true, 'Tous les innocents ont été éliminés !');
+                return;
+            }
+        }
+        
+        // Cas 3: Je suis innocent et le meurtrier est mort ou a quitté
+        if (playerRole === 'innocent') {
+            if (meurtriersVivants.length === 0) {
+                endGame(true, 'Le meurtrier a été éliminé ou a quitté !');
+                return;
+            }
+        }
+        
+        // Cas 4: Il ne reste que 2 joueurs et l'autre quitte
+        if (total === 1 && alive === 1) {
+            // Je suis seul, l'autre a quitté
+            endGame(true, 'Victoire ! L\'adversaire a quitté la partie ! 🏆');
+            return;
+        }
+    } else if (!player.alive && gameStarted) {
+        // Si je suis mort, afficher défaite
+        endGame(false, 'Vous avez été éliminé !');
     }
 }
 
@@ -494,7 +531,19 @@ function tryKill() {
             // Tuer le joueur via Firebase
             if (window.firebaseDB && window.firebaseRef && window.firebaseUpdate) {
                 const targetRef = window.firebaseRef(window.firebaseDB, 'game/players/' + code);
-                window.firebaseUpdate(targetRef, { alive: false });
+                window.firebaseUpdate(targetRef, { alive: false }).then(() => {
+                    console.log(`⚔️ Joueur ${code} tué !`);
+                    
+                    // Mettre à jour l'objet local immédiatement
+                    if (otherPlayers[code]) {
+                        otherPlayers[code].alive = false;
+                    }
+                    
+                    // Vérifier la victoire immédiatement après le kill
+                    setTimeout(() => {
+                        updatePlayersCount();
+                    }, 100);
+                });
             }
         }
     }
