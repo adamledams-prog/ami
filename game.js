@@ -40,6 +40,7 @@ let player = {
 
 // Labyrinthe (1 = mur, 0 = passage)
 let maze = [];
+let mazeSeed = null; // Seed partagée pour la génération de la carte
 
 // Autres joueurs
 let otherPlayers = {};
@@ -124,8 +125,24 @@ function activerBonus(key, duree, multiplicateur) {
     chargerBonus();
 }
 
-// Générer un labyrinthe simple
+// Générateur de nombres aléatoires avec seed (pour synchroniser les cartes)
+let seededRandomState = 1;
+function seededRandom() {
+    seededRandomState = (seededRandomState * 9301 + 49297) % 233280;
+    return seededRandomState / 233280;
+}
+
+function setSeed(seed) {
+    seededRandomState = seed;
+}
+
+// Générer un labyrinthe simple avec seed partagée
 function generateMaze() {
+    // Réinitialiser le générateur avec la seed
+    if (mazeSeed !== null) {
+        setSeed(mazeSeed);
+    }
+    
     maze = [];
     for (let y = 0; y < MAZE_HEIGHT; y++) {
         maze[y] = [];
@@ -134,8 +151,8 @@ function generateMaze() {
             if (x === 0 || y === 0 || x === MAZE_WIDTH - 1 || y === MAZE_HEIGHT - 1) {
                 maze[y][x] = 1;
             }
-            // Murs aléatoires (plus de passages)
-            else if (Math.random() < 0.25) {
+            // Murs aléatoires (plus de passages) - utiliser seededRandom au lieu de Math.random
+            else if (seededRandom() < 0.25) {
                 maze[y][x] = 1;
             } else {
                 maze[y][x] = 0;
@@ -173,8 +190,44 @@ function isWall(x, y) {
 
 // Démarrer le jeu
 function startGame() {
-    generateMaze();
-    
+    // Récupérer ou créer la seed de la carte depuis Firebase
+    if (window.firebaseDB && window.firebaseRef && window.firebaseSet && window.firebaseOnValue) {
+        const seedRef = window.firebaseRef(window.firebaseDB, 'game/mapSeed');
+        
+        // Écouter la seed
+        window.firebaseOnValue(seedRef, (snapshot) => {
+            const seedData = snapshot.val();
+            
+            if (seedData && seedData.seed) {
+                // Utiliser la seed existante
+                mazeSeed = seedData.seed;
+                console.log('🗺️ Seed de carte récupérée:', mazeSeed);
+            } else {
+                // Créer une nouvelle seed
+                mazeSeed = Math.floor(Math.random() * 1000000);
+                window.firebaseSet(seedRef, {
+                    seed: mazeSeed,
+                    createdAt: Date.now()
+                });
+                console.log('🗺️ Nouvelle seed créée:', mazeSeed);
+            }
+            
+            // Générer le labyrinthe avec la seed partagée
+            generateMaze();
+            
+            // Continuer l'initialisation du jeu uniquement après avoir la seed
+            initializeGameAfterSeed();
+        }, { onlyOnce: true }); // Récupérer une seule fois
+    } else {
+        // Fallback si Firebase n'est pas disponible
+        mazeSeed = Date.now();
+        generateMaze();
+        initializeGameAfterSeed();
+    }
+}
+
+// Initialiser le jeu après avoir récupéré la seed
+function initializeGameAfterSeed() {
     // Position aléatoire
     const pos = getRandomPosition();
     player.x = pos.x;
@@ -233,6 +286,20 @@ function startGame() {
                     }
                 }
                 updatePlayersCount();
+            }
+        });
+        
+        // Écouter notre propre joueur pour détecter si on est tué
+        const myPlayerRef = window.firebaseRef(window.firebaseDB, 'game/players/' + playerCode);
+        window.firebaseOnValue(myPlayerRef, (snapshot) => {
+            const myData = snapshot.val();
+            if (myData && !myData.alive && player.alive) {
+                // On vient d'être tué
+                player.alive = false;
+                const killerName = myData.killedBy || 'quelqu\'un';
+                setTimeout(() => {
+                    endGame(false, `💀 Vous avez été tué par ${killerName} !`);
+                }, 100);
             }
         });
     }
@@ -528,15 +595,19 @@ function tryKill() {
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < KILL_DISTANCE) {
-            // Tuer le joueur via Firebase
+            // Tuer le joueur via Firebase avec le nom du tueur
             if (window.firebaseDB && window.firebaseRef && window.firebaseUpdate) {
                 const targetRef = window.firebaseRef(window.firebaseDB, 'game/players/' + code);
-                window.firebaseUpdate(targetRef, { alive: false }).then(() => {
-                    console.log(`⚔️ Joueur ${code} tué !`);
+                window.firebaseUpdate(targetRef, { 
+                    alive: false,
+                    killedBy: playerName  // Enregistrer le nom du tueur
+                }).then(() => {
+                    console.log(`⚔️ Joueur ${code} tué par ${playerName}!`);
                     
                     // Mettre à jour l'objet local immédiatement
                     if (otherPlayers[code]) {
                         otherPlayers[code].alive = false;
+                        otherPlayers[code].killedBy = playerName;
                     }
                     
                     // Vérifier la victoire immédiatement après le kill
