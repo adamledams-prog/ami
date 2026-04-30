@@ -46,7 +46,7 @@
         0 0 90px rgba(220, 220, 220, 0.6),
         0 4px 20px rgba(0, 0, 0, 1);
     animation: pierreGlowIntense 1.8s ease-in-out infinite;
-    font-size: 36px;
+    font-size: 40px;
     font-weight: 900;
     letter-spacing: 4px;
 }
@@ -74,7 +74,7 @@
 .coffre-top-pierre,
 .coffre-bottom-pierre {
     position: absolute;
-    font-size: 130px;
+    font-size: 145px;
     transition: all 0.9s cubic-bezier(0.68, -0.55, 0.265, 1.55);
     filter: 
         drop-shadow(0 20px 50px rgba(0, 0, 0, 0.95))
@@ -143,7 +143,7 @@
     transform: translate(-50%, -50%);
     opacity: 0;
     pointer-events: none;
-    font-size: 50px;
+    font-size: 60px;
 }
 
 .treasure-burst-pierre::before,

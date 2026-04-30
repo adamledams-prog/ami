@@ -6,7 +6,7 @@
     background: linear-gradient(135deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.05));\n    backdrop-filter: blur(25px) saturate(180%);\n    -webkit-backdrop-filter: blur(25px) saturate(180%);\n    padding: 25px;\n    border-radius: 25px;\n    box-shadow: \n        0 10px 40px rgba(0, 0, 0, 0.5),\n        inset 0 1px 0 rgba(255, 255, 255, 0.5),\n        0 0 50px rgba(102, 126, 234, 0.5);\n    display: flex;\n    flex-direction: column;\n    align-items: center;\n    gap: 18px;\n    z-index: 10;\n    border: 2px solid rgba(255, 255, 255, 0.3);\n    transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);\n    animation: qrFloat 3s ease-in-out infinite, qrGlow 2s ease-in-out infinite;\n}\n\n@keyframes qrFloat {\n    0%, 100% { transform: translateY(0) rotateZ(0deg); }\n    50% { transform: translateY(-10px) rotateZ(1deg); }\n}\n\n@keyframes qrGlow {\n    0%, 100% {\n        box-shadow: \n            0 10px 40px rgba(0, 0, 0, 0.5),\n            inset 0 1px 0 rgba(255, 255, 255, 0.5),\n            0 0 50px rgba(102, 126, 234, 0.5);\n    }\n    50% {\n        box-shadow: \n            0 10px 40px rgba(0, 0, 0, 0.5),\n            inset 0 1px 0 rgba(255, 255, 255, 0.7),\n            0 0 70px rgba(102, 126, 234, 0.9);\n    }\n}\n\n.mon-qrcode:hover {\n    transform: scale(1.05) translateY(-5px) rotateZ(2deg);\n    box-shadow: \n        0 15px 50px rgba(0, 0, 0, 0.6),\n        inset 0 1px 0 rgba(255, 255, 255, 0.7),\n        0 0 80px rgba(102, 126, 234, 1);\n}
 
 .qrcode-titre {
-    font-size: 20px;
+    font-size: 22px;
     font-weight: 900;
     color: #fff;
     text-align: center;
@@ -56,7 +56,7 @@
 }
 
 #mon-code-chiffres {
-    font-size: 28px;
+    font-size: 32px;
     color: #fff;
     text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
     letter-spacing: 3px;
@@ -67,9 +67,9 @@
     position: absolute;
     top: 20px;
     right: 20px;
-    width: 70px;
-    height: 70px;
-    font-size: 42px;
+    width: 80px;
+    height: 80px;
+    font-size: 46px;
     font-weight: bold;
     border: none;
     border-radius: 50%;
@@ -87,7 +87,7 @@
 
 .btn-ajouter:hover {
     background: linear-gradient(135deg, #00cc00, #009900);
-    transform: scale(1.1) rotate(90deg);
+    transform: scale(1.15) rotate(90deg);
     box-shadow: 0 8px 20px rgba(0, 200, 0, 0.6);
 }
 
@@ -137,8 +137,8 @@
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.25), rgba(118, 75, 162, 0.25));
     backdrop-filter: blur(15px) saturate(180%);
     -webkit-backdrop-filter: blur(15px) saturate(180%);
-    padding: 25px;
-    border-radius: 25px;
+    padding: 30px;
+    border-radius: 28px;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -189,8 +189,8 @@
 }
 
 .ami-avatar {
-    width: 70px;
-    height: 70px;
+    width: 80px;
+    height: 80px;
     background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
     background-size: 200% 200%;
     border-radius: 50%;
@@ -232,7 +232,7 @@
 }
 
 .ami-nom {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 900;
     color: #fff;
     text-shadow: 
@@ -255,10 +255,10 @@
 }
 
 .btn-renommer {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
-    border: 2px solid rgba(102, 126, 234, 0.5);
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    border: 3px solid rgba(102, 126, 234, 0.5);
     border-radius: 50%;
     background: linear-gradient(135deg, rgba(102, 126, 234, 0.3), rgba(118, 75, 162, 0.3));
     backdrop-filter: blur(10px);
@@ -284,10 +284,10 @@
 }
 
 .btn-supprimer {
-    width: 50px;
-    height: 50px;
-    font-size: 20px;
-    border: 2px solid rgba(255, 68, 68, 0.5);
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    border: 3px solid rgba(255, 68, 68, 0.5);
     border-radius: 50%;
     background: linear-gradient(135deg, rgba(255, 68, 68, 0.3), rgba(204, 0, 0, 0.3));
     backdrop-filter: blur(10px);
@@ -388,8 +388,8 @@
 
 #input-code {
     width: 100%;
-    padding: 15px 20px;
-    font-size: 28px;
+    padding: 18px 25px;
+    font-size: 32px;
     border: 3px solid #ddd;
     border-radius: 10px;
     text-align: center;
@@ -408,8 +408,8 @@
 #btn-valider-code,
 #btn-ok-confirmation {
     width: 100%;
-    padding: 15px 30px;
-    font-size: 18px;
+    padding: 18px 35px;
+    font-size: 20px;
     font-weight: bold;
     border: none;
     border-radius: 10px;
