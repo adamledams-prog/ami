@@ -6,6 +6,7 @@ const btnContinuer = document.getElementById('btn-continuer');
 let currentCharIndex = 0;
 let currentText = '';
 let isTyping = false;
+let tutorielSkipped = false;
 
 // Animation typeWriter
 function typeWriter(text, callback) {
@@ -45,32 +46,42 @@ function startTutoPC() {
                     // Afficher la démo
                     demoContainer.style.display = 'flex';
                     
-                    // Afficher le bouton continuer après 2.5 secondes
+                    // Afficher le bouton continuer après 0.5 secondes (réduit de 2.5s)
                     setTimeout(() => {
                         btnContinuer.style.display = 'block';
-                    }, 2500);
-                }, 1200);
+                    }, 500);
+                }, 300);
             });
-        }, 1800);
+        }, 500);
     });
+}
+
+// Fonction pour passer le tutoriel
+function skipTutoriel() {
+    if (tutorielSkipped) return;
+    tutorielSkipped = true;
+    window.location.href = 'index.html';
 }
 
 // Gestion du bouton continuer
 btnContinuer.addEventListener('click', () => {
-    const messageFinal = "C'est parti ! Que le meilleur gagne ! 🏆";
-    btnContinuer.style.display = 'none';
-    demoContainer.style.display = 'none';
-    
-    typeWriter(messageFinal, () => {
-        setTimeout(() => {
-            window.location.href = 'index.html';
-        }, 1500);
-    });
+    skipTutoriel();
 });
 
 // Démarrage au chargement
 window.addEventListener('DOMContentLoaded', () => {
+    // Afficher immédiatement le bouton continuer
+    btnContinuer.style.display = 'block';
+    btnContinuer.textContent = 'Passer ⏭️';
+    
     setTimeout(() => {
         startTutoPC();
-    }, 500);
+    }, 100);
+    
+    // Permettre de passer avec la touche Entrée ou Espace
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+            skipTutoriel();
+        }
+    });
 });
