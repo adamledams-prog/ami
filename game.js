@@ -20,7 +20,7 @@ const MAZE_WIDTH = 40;  // Réduit de 80 à 40
 const MAZE_HEIGHT = 30; // Réduit de 60 à 30
 const VISION_RADIUS = 200;
 const PLAYER_SIZE = 30;
-const PLAYER_SPEED = 3;
+const PLAYER_SPEED = 80 / 60; // 2 blocs/s (TILE_SIZE=40px, 60fps)
 const KILL_DISTANCE = 50;
 
 let gameStarted = false;
