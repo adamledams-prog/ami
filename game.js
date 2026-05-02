@@ -653,13 +653,13 @@ function lancerAnimationMort(x, y, couleur, estMoi) {
         particules: []
     };
     // Générer des particules de sang
-    for (let i = 0; i < 12; i++) {
-        const angle = (Math.PI * 2 / 12) * i + (Math.random() - 0.5) * 0.5;
-        const vitesse = 2 + Math.random() * 3;
+    for (let i = 0; i < 20; i++) {
+        const angle = (Math.PI * 2 / 20) * i + (Math.random() - 0.5) * 0.5;
+        const vitesse = 1.5 + Math.random() * 4;
         anim.particules.push({
             vx: Math.cos(angle) * vitesse,
-            vy: Math.sin(angle) * vitesse,
-            taille: 4 + Math.random() * 6,
+            vy: Math.sin(angle) * vitesse - 1.5,
+            taille: 3 + Math.random() * 7,
             alpha: 1
         });
     }
@@ -667,7 +667,7 @@ function lancerAnimationMort(x, y, couleur, estMoi) {
     
     // Flash rouge sur l'écran si c'est notre mort
     if (estMoi) {
-        deathAnimation = { temps: 0, duree: 60 };
+        deathAnimation = { temps: 0, duree: 120 };
     }
 }
 
@@ -859,96 +859,172 @@ function render() {
 function renderKillAnimations() {
     const cameraX = player.x - canvas.width / 2;
     const cameraY = player.y - canvas.height / 2;
-    
-    // Flash écran rouge (mort du joueur local)
+
+    // ── Animation mort VICTIME (écran du joueur tué) ──────────────────────────
     if (deathAnimation) {
         deathAnimation.temps++;
-        const alpha = Math.max(0, 0.7 * (1 - deathAnimation.temps / deathAnimation.duree));
-        ctx.fillStyle = `rgba(200, 0, 0, ${alpha})`;
+        const t = deathAnimation.temps;
+        const dur = deathAnimation.duree; // 120 frames
+
+        // Vignette rouge radiale
+        const vignetteAlpha = t < 30
+            ? (t / 30) * 0.85
+            : t < 90
+                ? 0.85 * (1 - (t - 30) / 60) * 0.6 + 0.1
+                : Math.max(0, 0.1 * (1 - (t - 90) / 30));
+
+        const grad = ctx.createRadialGradient(
+            canvas.width / 2, canvas.height / 2, canvas.height * 0.1,
+            canvas.width / 2, canvas.height / 2, canvas.height * 0.9
+        );
+        grad.addColorStop(0, `rgba(180,0,0,0)`);
+        grad.addColorStop(1, `rgba(200,0,0,${vignetteAlpha})`);
+        ctx.fillStyle = grad;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        
-        // Texte ÉLIMINÉ
-        if (deathAnimation.temps < 50) {
+
+        // Flash blanc instantané au début
+        if (t < 8) {
+            ctx.fillStyle = `rgba(255,255,255,${(1 - t / 8) * 0.6})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        // Texte ÉLIMINÉ avec scale bounce + tremblement
+        if (t >= 15 && t < 100) {
+            const fadeIn  = Math.min(1, (t - 15) / 20);
+            const fadeOut = t > 80 ? 1 - (t - 80) / 20 : 1;
+            const scale   = t < 35 ? 1 + (35 - t) / 35 * 0.6 : 1;
+            const shake   = t < 50 ? (Math.random() - 0.5) * 6 : 0;
+
             ctx.save();
-            ctx.globalAlpha = Math.min(1, deathAnimation.temps / 15);
-            ctx.font = 'bold 64px Arial';
+            ctx.globalAlpha = fadeIn * fadeOut;
+            ctx.translate(canvas.width / 2 + shake, canvas.height / 2 + shake);
+            ctx.scale(scale, scale);
+            ctx.font = 'bold 72px Arial';
             ctx.textAlign = 'center';
-            ctx.fillStyle = '#fff';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = '#660000';
+            ctx.fillText('ÉLIMINÉ', 4, 4);
             ctx.strokeStyle = '#000';
-            ctx.lineWidth = 4;
-            ctx.strokeText('ÉLIMINÉ', canvas.width / 2, canvas.height / 2);
-            ctx.fillText('ÉLIMINÉ', canvas.width / 2, canvas.height / 2);
+            ctx.lineWidth = 8;
+            ctx.strokeText('ÉLIMINÉ', 0, 0);
+            ctx.fillStyle = '#fff';
+            ctx.fillText('ÉLIMINÉ', 0, 0);
             ctx.restore();
         }
-        
-        if (deathAnimation.temps >= deathAnimation.duree) deathAnimation = null;
+
+        // Fondu au noir final
+        if (t > 95) {
+            const blackAlpha = (t - 95) / (dur - 95);
+            ctx.fillStyle = `rgba(0,0,0,${blackAlpha})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        if (t >= dur) deathAnimation = null;
     }
-    
-    // Animations de corps (style Among Us)
+
+    // ── Animations de corps (style Among Us) ──────────────────────────────────
     killAnimations = killAnimations.filter(anim => anim.temps < anim.duree);
-    
+
     for (const anim of killAnimations) {
         anim.temps++;
-        const progress = anim.temps / anim.duree;
+        const t = anim.temps;
+        const progress = t / anim.duree;
+        const ease = 1 - Math.pow(1 - progress, 3);
         const screenX = anim.x - cameraX;
         const screenY = anim.y - cameraY;
         const R = PLAYER_SIZE / 2;
-        
+
         ctx.save();
-        
-        // Moitié haute du corps qui part vers le haut-gauche
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(screenX - R - 20, screenY - R - 20, R * 2 + 40, R + 20);
-        ctx.clip();
-        ctx.globalAlpha = 1 - progress;
-        ctx.fillStyle = anim.couleur;
-        ctx.beginPath();
-        ctx.arc(
-            screenX - progress * 30,
-            screenY - progress * 25,
-            R, 0, Math.PI * 2
-        );
-        ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.restore();
-        
-        // Moitié basse du corps qui part vers le bas-droite
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(screenX - R - 20, screenY, R * 2 + 40, R + 20);
-        ctx.clip();
-        ctx.globalAlpha = 1 - progress;
-        ctx.fillStyle = anim.couleur;
-        ctx.beginPath();
-        ctx.arc(
-            screenX + progress * 30,
-            screenY + progress * 25,
-            R, 0, Math.PI * 2
-        );
-        ctx.fill();
-        ctx.strokeStyle = '#fff';
-        ctx.lineWidth = 2;
-        ctx.stroke();
-        ctx.restore();
-        
-        // Particules de sang
-        for (const p of anim.particules) {
-            p.alpha = Math.max(0, 1 - progress * 1.5);
-            ctx.globalAlpha = p.alpha;
-            ctx.fillStyle = '#cc0000';
+
+        // Flash blanc au moment du kill
+        if (t < 6) {
+            ctx.globalAlpha = (1 - t / 6) * 0.8;
+            ctx.fillStyle = '#fff';
             ctx.beginPath();
-            ctx.arc(
-                screenX + p.vx * anim.temps,
-                screenY + p.vy * anim.temps,
-                p.taille * (1 - progress * 0.5),
-                0, Math.PI * 2
-            );
+            ctx.arc(screenX, screenY, R * 3, 0, Math.PI * 2);
             ctx.fill();
         }
-        
+
+        // ── Moitié HAUTE : part en haut-gauche + rotation ──
+        ctx.save();
+        ctx.translate(screenX - ease * 55, screenY - ease * 50);
+        ctx.rotate(-ease * 1.2);
+        ctx.globalAlpha = Math.max(0, 1 - progress * 1.1);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(-R - 5, -R - 5, (R + 5) * 2, R + 5);
+        ctx.clip();
+        ctx.fillStyle = anim.couleur;
+        ctx.beginPath();
+        ctx.arc(0, 0, R, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.strokeStyle = '#cc0000';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-R, 0);
+        ctx.lineTo(R, 0);
+        ctx.stroke();
+        ctx.restore();
+        ctx.restore();
+
+        // ── Moitié BASSE : part en bas-droite + rotation ──
+        ctx.save();
+        ctx.translate(screenX + ease * 55, screenY + ease * 50);
+        ctx.rotate(ease * 1.2);
+        ctx.globalAlpha = Math.max(0, 1 - progress * 1.1);
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(-R - 5, 0, (R + 5) * 2, R + 5);
+        ctx.clip();
+        ctx.fillStyle = anim.couleur;
+        ctx.beginPath();
+        ctx.arc(0, 0, R, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.strokeStyle = '#cc0000';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(-R, 0);
+        ctx.lineTo(R, 0);
+        ctx.stroke();
+        ctx.restore();
+        ctx.restore();
+
+        // ── Particules de sang avec gravité ──
+        for (const p of anim.particules) {
+            const px = screenX + p.vx * t * 0.9;
+            const py = screenY + p.vy * t * 0.9 + 0.08 * t * t;
+            const palpha = Math.max(0, 1 - progress * 1.6);
+            const ptaille = p.taille * Math.max(0.2, 1 - progress);
+            ctx.save();
+            ctx.globalAlpha = palpha;
+            const pg = ctx.createRadialGradient(px, py, 0, px, py, ptaille);
+            pg.addColorStop(0, '#ff2222');
+            pg.addColorStop(1, '#660000');
+            ctx.fillStyle = pg;
+            ctx.beginPath();
+            ctx.arc(px, py, ptaille, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        // ── Onde de choc circulaire ──
+        if (t < 25) {
+            ctx.save();
+            ctx.globalAlpha = (1 - t / 25) * 0.7;
+            ctx.strokeStyle = '#ff4444';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(screenX, screenY, ease * 80, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
         ctx.restore();
     }
 }
