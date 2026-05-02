@@ -20,12 +20,13 @@ const MAZE_WIDTH = 40;  // Réduit de 80 à 40
 const MAZE_HEIGHT = 30; // Réduit de 60 à 30
 const VISION_RADIUS = 200;
 const PLAYER_SIZE = 30;
-const PLAYER_SPEED = 80 / 60; // 2 blocs/s (TILE_SIZE=40px, ~60fps)
+const PLAYER_SPEED = 160 / 60; // 4 blocs/s (TILE_SIZE=40px, ~60fps)
 const KILL_DISTANCE = 160; // 4 blocs (4 * TILE_SIZE)
 
 // Animations de mort (Among Us style)
 let killAnimations = [];
 let deathAnimation = null;
+let killed = false; // flag anti-race-condition
 
 let gameStarted = false;
 let canMove = false;
@@ -297,11 +298,12 @@ function initializeGameAfterSeed() {
         const myPlayerRef = window.firebaseRef(window.firebaseDB, 'game/players/' + playerCode);
         window.firebaseOnValue(myPlayerRef, (snapshot) => {
             const myData = snapshot.val();
-            if (myData && !myData.alive && player.alive) {
-                // On vient d'être tué
+            if (myData && !myData.alive && player.alive && !killed) {
+                // Marquer killed en PREMIER pour stopper le sync (anti-race-condition)
+                killed = true;
                 player.alive = false;
                 const killerName = myData.killedBy || 'quelqu\'un';
-                // Lancer l'animation de mort (victime voit son propre corps tomber)
+                // Lancer l'animation de mort HTML
                 lancerAnimationMort(player.x, player.y, '#00ff00', true);
                 setTimeout(() => {
                     endGame(false, `💀 Vous avez été tué par ${killerName} !`);
@@ -367,7 +369,7 @@ function syncToFirebase() {
         // Écrire périodiquement la position et l'état
         // IMPORTANT: on utilise update() et pas set() pour ne PAS écraser alive:false écrit par le tueur
         setInterval(() => {
-            if (gameStarted && canMove && player.alive) {
+            if (gameStarted && canMove && player.alive && !killed) {
                 window.firebaseUpdate(playerRef, {
                     name: playerName,
                     x: invisible ? -9999 : player.x,
