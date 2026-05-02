@@ -305,7 +305,7 @@ function initializeGameAfterSeed() {
                 lancerAnimationMort(player.x, player.y, '#00ff00', true);
                 setTimeout(() => {
                     endGame(false, `💀 Vous avez été tué par ${killerName} !`);
-                }, 1500);
+                }, 2000);
             }
         });
     }
@@ -664,11 +664,69 @@ function lancerAnimationMort(x, y, couleur, estMoi) {
         });
     }
     killAnimations.push(anim);
-    
-    // Flash rouge sur l'écran si c'est notre mort
+
     if (estMoi) {
-        deathAnimation = { temps: 0, duree: 120 };
+        // Animation HTML indépendante du gameLoop
+        jouerAnimationMortHTML();
+    } else {
+        // Confirmation kill pour le tueur
+        const killOverlay = document.getElementById('kill-overlay');
+        if (killOverlay) {
+            killOverlay.style.display = 'block';
+            killOverlay.style.opacity = '1';
+            let t = 0;
+            const iv = setInterval(() => {
+                t += 16;
+                if (t > 800) {
+                    killOverlay.style.opacity = '0';
+                    killOverlay.style.display = 'none';
+                    clearInterval(iv);
+                } else if (t > 500) {
+                    killOverlay.style.opacity = String(1 - (t - 500) / 300);
+                }
+            }, 16);
+        }
     }
+}
+
+function jouerAnimationMortHTML() {
+    const overlay  = document.getElementById('death-overlay');
+    const vignette = document.getElementById('death-vignette');
+    const flash    = document.getElementById('death-flash');
+    const texte    = document.getElementById('death-text');
+    const noir     = document.getElementById('death-black');
+    if (!overlay) return;
+
+    overlay.style.display = 'block';
+
+    // Étape 1 : flash blanc immédiat
+    flash.style.opacity = '0.8';
+    setTimeout(() => { flash.style.transition = 'opacity 0.3s'; flash.style.opacity = '0'; }, 50);
+
+    // Étape 2 : vignette rouge
+    vignette.style.opacity = '0';
+    setTimeout(() => { vignette.style.transition = 'opacity 0.2s'; vignette.style.opacity = '1'; }, 50);
+    setTimeout(() => { vignette.style.transition = 'opacity 0.8s'; vignette.style.opacity = '0.3'; }, 400);
+
+    // Étape 3 : texte ÉLIMINÉ avec bounce
+    texte.style.transform = 'translate(-50%,-50%) scale(2.5)';
+    texte.style.opacity = '0';
+    setTimeout(() => {
+        texte.style.transition = 'all 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+        texte.style.transform = 'translate(-50%,-50%) scale(1)';
+        texte.style.opacity = '1';
+    }, 150);
+    setTimeout(() => {
+        texte.style.transition = 'opacity 0.3s';
+        texte.style.opacity = '0';
+    }, 1100);
+
+    // Étape 4 : fondu au noir
+    noir.style.opacity = '0';
+    setTimeout(() => { noir.style.transition = 'opacity 0.5s'; noir.style.opacity = '1'; }, 1200);
+
+    // Masquer après fin
+    setTimeout(() => { overlay.style.display = 'none'; noir.style.opacity = '0'; }, 2000);
 }
 
 // Boucle de jeu
@@ -859,68 +917,6 @@ function render() {
 function renderKillAnimations() {
     const cameraX = player.x - canvas.width / 2;
     const cameraY = player.y - canvas.height / 2;
-
-    // ── Animation mort VICTIME (écran du joueur tué) ──────────────────────────
-    if (deathAnimation) {
-        deathAnimation.temps++;
-        const t = deathAnimation.temps;
-        const dur = deathAnimation.duree; // 120 frames
-
-        // Vignette rouge radiale
-        const vignetteAlpha = t < 30
-            ? (t / 30) * 0.85
-            : t < 90
-                ? 0.85 * (1 - (t - 30) / 60) * 0.6 + 0.1
-                : Math.max(0, 0.1 * (1 - (t - 90) / 30));
-
-        const grad = ctx.createRadialGradient(
-            canvas.width / 2, canvas.height / 2, canvas.height * 0.1,
-            canvas.width / 2, canvas.height / 2, canvas.height * 0.9
-        );
-        grad.addColorStop(0, `rgba(180,0,0,0)`);
-        grad.addColorStop(1, `rgba(200,0,0,${vignetteAlpha})`);
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-        // Flash blanc instantané au début
-        if (t < 8) {
-            ctx.fillStyle = `rgba(255,255,255,${(1 - t / 8) * 0.6})`;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        // Texte ÉLIMINÉ avec scale bounce + tremblement
-        if (t >= 15 && t < 100) {
-            const fadeIn  = Math.min(1, (t - 15) / 20);
-            const fadeOut = t > 80 ? 1 - (t - 80) / 20 : 1;
-            const scale   = t < 35 ? 1 + (35 - t) / 35 * 0.6 : 1;
-            const shake   = t < 50 ? (Math.random() - 0.5) * 6 : 0;
-
-            ctx.save();
-            ctx.globalAlpha = fadeIn * fadeOut;
-            ctx.translate(canvas.width / 2 + shake, canvas.height / 2 + shake);
-            ctx.scale(scale, scale);
-            ctx.font = 'bold 72px Arial';
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-            ctx.fillStyle = '#660000';
-            ctx.fillText('ÉLIMINÉ', 4, 4);
-            ctx.strokeStyle = '#000';
-            ctx.lineWidth = 8;
-            ctx.strokeText('ÉLIMINÉ', 0, 0);
-            ctx.fillStyle = '#fff';
-            ctx.fillText('ÉLIMINÉ', 0, 0);
-            ctx.restore();
-        }
-
-        // Fondu au noir final
-        if (t > 95) {
-            const blackAlpha = (t - 95) / (dur - 95);
-            ctx.fillStyle = `rgba(0,0,0,${blackAlpha})`;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-        }
-
-        if (t >= dur) deathAnimation = null;
-    }
 
     // ── Animations de corps (style Among Us) ──────────────────────────────────
     killAnimations = killAnimations.filter(anim => anim.temps < anim.duree);
