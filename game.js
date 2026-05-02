@@ -21,7 +21,11 @@ const MAZE_HEIGHT = 30; // Réduit de 60 à 30
 const VISION_RADIUS = 200;
 const PLAYER_SIZE = 30;
 const PLAYER_SPEED = 80 / 60; // 2 blocs/s (TILE_SIZE=40px, ~60fps)
-const KILL_DISTANCE = 50;
+const KILL_DISTANCE = 160; // 4 blocs (4 * TILE_SIZE)
+
+// Animations de mort (Among Us style)
+let killAnimations = [];
+let deathAnimation = null;
 
 let gameStarted = false;
 let canMove = false;
@@ -297,9 +301,11 @@ function initializeGameAfterSeed() {
                 // On vient d'être tué
                 player.alive = false;
                 const killerName = myData.killedBy || 'quelqu\'un';
+                // Lancer l'animation de mort (victime voit son propre corps tomber)
+                lancerAnimationMort(player.x, player.y, '#00ff00', true);
                 setTimeout(() => {
                     endGame(false, `💀 Vous avez été tué par ${killerName} !`);
-                }, 100);
+                }, 1500);
             }
         });
     }
@@ -359,14 +365,15 @@ function syncToFirebase() {
         const playerRef = window.firebaseRef(window.firebaseDB, 'game/players/' + playerCode);
         
         // Écrire périodiquement la position et l'état
+        // IMPORTANT: on utilise update() et pas set() pour ne PAS écraser alive:false écrit par le tueur
         setInterval(() => {
-            if (gameStarted && canMove) {
-                window.firebaseSet(playerRef, {
+            if (gameStarted && canMove && player.alive) {
+                window.firebaseUpdate(playerRef, {
                     name: playerName,
-                    x: invisible ? -9999 : player.x,  // Cacher la position si invisible
+                    x: invisible ? -9999 : player.x,
                     y: invisible ? -9999 : player.y,
                     role: playerRole,
-                    alive: player.alive,
+                    alive: true,
                     invisible: invisible,
                     timestamp: Date.now()
                 });
@@ -609,28 +616,58 @@ function tryKill() {
         const distance = Math.sqrt(dx * dx + dy * dy);
         
         if (distance < KILL_DISTANCE) {
-            // Tuer le joueur via Firebase avec le nom du tueur
             if (window.firebaseDB && window.firebaseRef && window.firebaseUpdate) {
                 const targetRef = window.firebaseRef(window.firebaseDB, 'game/players/' + code);
                 window.firebaseUpdate(targetRef, { 
                     alive: false,
-                    killedBy: playerName  // Enregistrer le nom du tueur
+                    killedBy: playerName
                 }).then(() => {
                     console.log(`⚔️ Joueur ${code} tué par ${playerName}!`);
                     
-                    // Mettre à jour l'objet local immédiatement
                     if (otherPlayers[code]) {
                         otherPlayers[code].alive = false;
                         otherPlayers[code].killedBy = playerName;
                     }
                     
-                    // Vérifier la victoire immédiatement après le kill
+                    // Animation Among Us côté tueur
+                    lancerAnimationMort(otherPlayer.x, otherPlayer.y, '#ff0000', false);
+                    
                     setTimeout(() => {
                         updatePlayersCount();
                     }, 100);
                 });
             }
+            break; // Un seul kill par appui
         }
+    }
+}
+
+// Animation de mort style Among Us
+function lancerAnimationMort(x, y, couleur, estMoi) {
+    const anim = {
+        x, y,
+        couleur,
+        estMoi,
+        temps: 0,
+        duree: 90, // frames
+        particules: []
+    };
+    // Générer des particules de sang
+    for (let i = 0; i < 12; i++) {
+        const angle = (Math.PI * 2 / 12) * i + (Math.random() - 0.5) * 0.5;
+        const vitesse = 2 + Math.random() * 3;
+        anim.particules.push({
+            vx: Math.cos(angle) * vitesse,
+            vy: Math.sin(angle) * vitesse,
+            taille: 4 + Math.random() * 6,
+            alpha: 1
+        });
+    }
+    killAnimations.push(anim);
+    
+    // Flash rouge sur l'écran si c'est notre mort
+    if (estMoi) {
+        deathAnimation = { temps: 0, duree: 60 };
     }
 }
 
@@ -814,6 +851,106 @@ function render() {
     
     // Dessiner la minimap
     renderMinimap();
+    
+    // Animations de mort Among Us
+    renderKillAnimations();
+}
+
+function renderKillAnimations() {
+    const cameraX = player.x - canvas.width / 2;
+    const cameraY = player.y - canvas.height / 2;
+    
+    // Flash écran rouge (mort du joueur local)
+    if (deathAnimation) {
+        deathAnimation.temps++;
+        const alpha = Math.max(0, 0.7 * (1 - deathAnimation.temps / deathAnimation.duree));
+        ctx.fillStyle = `rgba(200, 0, 0, ${alpha})`;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Texte ÉLIMINÉ
+        if (deathAnimation.temps < 50) {
+            ctx.save();
+            ctx.globalAlpha = Math.min(1, deathAnimation.temps / 15);
+            ctx.font = 'bold 64px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = '#fff';
+            ctx.strokeStyle = '#000';
+            ctx.lineWidth = 4;
+            ctx.strokeText('ÉLIMINÉ', canvas.width / 2, canvas.height / 2);
+            ctx.fillText('ÉLIMINÉ', canvas.width / 2, canvas.height / 2);
+            ctx.restore();
+        }
+        
+        if (deathAnimation.temps >= deathAnimation.duree) deathAnimation = null;
+    }
+    
+    // Animations de corps (style Among Us)
+    killAnimations = killAnimations.filter(anim => anim.temps < anim.duree);
+    
+    for (const anim of killAnimations) {
+        anim.temps++;
+        const progress = anim.temps / anim.duree;
+        const screenX = anim.x - cameraX;
+        const screenY = anim.y - cameraY;
+        const R = PLAYER_SIZE / 2;
+        
+        ctx.save();
+        
+        // Moitié haute du corps qui part vers le haut-gauche
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(screenX - R - 20, screenY - R - 20, R * 2 + 40, R + 20);
+        ctx.clip();
+        ctx.globalAlpha = 1 - progress;
+        ctx.fillStyle = anim.couleur;
+        ctx.beginPath();
+        ctx.arc(
+            screenX - progress * 30,
+            screenY - progress * 25,
+            R, 0, Math.PI * 2
+        );
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        
+        // Moitié basse du corps qui part vers le bas-droite
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(screenX - R - 20, screenY, R * 2 + 40, R + 20);
+        ctx.clip();
+        ctx.globalAlpha = 1 - progress;
+        ctx.fillStyle = anim.couleur;
+        ctx.beginPath();
+        ctx.arc(
+            screenX + progress * 30,
+            screenY + progress * 25,
+            R, 0, Math.PI * 2
+        );
+        ctx.fill();
+        ctx.strokeStyle = '#fff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.restore();
+        
+        // Particules de sang
+        for (const p of anim.particules) {
+            p.alpha = Math.max(0, 1 - progress * 1.5);
+            ctx.globalAlpha = p.alpha;
+            ctx.fillStyle = '#cc0000';
+            ctx.beginPath();
+            ctx.arc(
+                screenX + p.vx * anim.temps,
+                screenY + p.vy * anim.temps,
+                p.taille * (1 - progress * 0.5),
+                0, Math.PI * 2
+            );
+            ctx.fill();
+        }
+        
+        ctx.restore();
+    }
 }
 
 // Rendu minimap
