@@ -742,14 +742,8 @@ function render() {
             ctx.arc(otherPlayer.x + 3, otherPlayer.y + 3, PLAYER_SIZE / 2, 0, Math.PI * 2);
             ctx.fill();
             
-            // Couleur selon le rôle
-            if (playerRole === 'murderer' && otherPlayer.role === 'innocent') {
-                ctx.fillStyle = '#00ff00';
-            } else if (otherPlayer.role === 'murderer') {
-                ctx.fillStyle = '#ff0000';
-            } else {
-                ctx.fillStyle = '#4a9eff';
-            }
+            // Autres joueurs toujours en rouge
+            ctx.fillStyle = '#ff0000';
             
             // Joueur avec contour
             ctx.beginPath();
@@ -779,9 +773,8 @@ function render() {
         
         // Joueur brillant
         const gradient = ctx.createRadialGradient(player.x, player.y, 0, player.x, player.y, PLAYER_SIZE / 2);
-        const color = playerRole === 'murderer' ? '#ff0000' : '#00ff00';
-        gradient.addColorStop(0, color);
-        gradient.addColorStop(1, playerRole === 'murderer' ? '#cc0000' : '#00cc00');
+        gradient.addColorStop(0, '#00ff00');
+        gradient.addColorStop(1, '#00cc00');
         ctx.fillStyle = gradient;
         ctx.beginPath();
         ctx.arc(player.x, player.y, PLAYER_SIZE / 2, 0, Math.PI * 2);
@@ -843,7 +836,7 @@ function renderMinimap() {
     // Dessiner les autres joueurs
     for (const otherPlayer of Object.values(otherPlayers)) {
         if (!otherPlayer.alive) continue;
-        minimapCtx.fillStyle = otherPlayer.role === 'murderer' ? '#ff0000' : '#4a9eff';
+        minimapCtx.fillStyle = '#ff0000';
         minimapCtx.beginPath();
         minimapCtx.arc(otherPlayer.x * scale, otherPlayer.y * scale, 3, 0, Math.PI * 2);
         minimapCtx.fill();
@@ -851,7 +844,7 @@ function renderMinimap() {
     
     // Dessiner le joueur
     if (player.alive) {
-        minimapCtx.fillStyle = playerRole === 'murderer' ? '#ff0000' : '#00ff00';
+        minimapCtx.fillStyle = '#00ff00';
         minimapCtx.beginPath();
         minimapCtx.arc(player.x * scale, player.y * scale, 4, 0, Math.PI * 2);
         minimapCtx.fill();
